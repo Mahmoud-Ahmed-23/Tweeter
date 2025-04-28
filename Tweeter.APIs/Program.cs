@@ -1,9 +1,13 @@
 
+using System.Threading.Tasks;
+using Tweeter.APIs.Extensions;
+using Tweeter.Infrastructure.Persistence;
+
 namespace Tweeter.APIs
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +17,15 @@ namespace Tweeter.APIs
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
-            var app = builder.Build();
+            builder.Services.AddPersistence(builder.Configuration);
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+
+			var app = builder.Build();
+
+            await app.InitializeDatabaseAsync();
+
+			// Configure the HTTP request pipeline.
+			if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
             }

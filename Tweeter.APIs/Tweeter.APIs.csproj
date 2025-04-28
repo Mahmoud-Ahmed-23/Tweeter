@@ -16,4 +16,8 @@
     <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tweeter.Core.Application\Tweeter.Core.Application.csproj" />
+  </ItemGroup>
+
 </Project>

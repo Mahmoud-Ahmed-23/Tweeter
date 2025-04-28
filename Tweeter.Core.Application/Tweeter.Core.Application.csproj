@@ -16,4 +16,10 @@
     <PackageReference Include="MimeKit" Version="4.11.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tweeter.Core.Application.Abstraction\Tweeter.Core.Application.Abstraction.csproj" />
+    <ProjectReference Include="..\Tweeter.Infrastructure.Persistence\Tweeter.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\Tweeter.Shared\Tweeter.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
