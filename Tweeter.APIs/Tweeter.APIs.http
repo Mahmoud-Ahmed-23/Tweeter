@@ -1,0 +1,6 @@
+@Tweeter.APIs_HostAddress = http://localhost:5251
+
+GET {{Tweeter.APIs_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
