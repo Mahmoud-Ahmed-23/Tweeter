@@ -1,6 +1,8 @@
 
 using System.Threading.Tasks;
 using Tweeter.APIs.Extensions;
+using Tweeter.APIs.Middlewares;
+using Tweeter.Core.Application;
 using Tweeter.Infrastructure.Persistence;
 
 namespace Tweeter.APIs
@@ -18,12 +20,16 @@ namespace Tweeter.APIs
 			builder.Services.AddOpenApi();
 
 			builder.Services.AddPersistence(builder.Configuration);
+			builder.Services.AddApplicationServices();
+			builder.Services.RegesteredPresestantLayer();
+
 
 
 			var app = builder.Build();
 
 			await app.InitializeDatabaseAsync();
 
+			app.UseMiddleware<ExeptionHandlerMiddleware>();
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
 			{
@@ -34,6 +40,9 @@ namespace Tweeter.APIs
 
 			app.UseHttpsRedirection();
 
+			app.UseStatusCodePagesWithReExecute("/Errors/{0}");
+
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 

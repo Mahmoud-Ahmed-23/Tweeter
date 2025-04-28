@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tweeter.Apis.Controllers\Tweeter.Apis.Controllers.csproj" />
     <ProjectReference Include="..\Tweeter.Core.Application\Tweeter.Core.Application.csproj" />
     <ProjectReference Include="..\Tweeter.Shared\Tweeter.Shared.csproj" />
   </ItemGroup>

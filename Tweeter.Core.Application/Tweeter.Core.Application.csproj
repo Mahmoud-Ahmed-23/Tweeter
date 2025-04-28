@@ -22,4 +22,10 @@
     <ProjectReference Include="..\Tweeter.Shared\Tweeter.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Identity\Account\" />
+    <Folder Include="Features\Identity\Authentication\" />
+    <Folder Include="Features\Identity\Authorization\" />
+  </ItemGroup>
+
 </Project>
