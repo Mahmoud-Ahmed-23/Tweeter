@@ -1,82 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Bases
 {
 	public class ResponseHandler
 	{
-		public Response<T> Deleted<T>(string Message = null!)
-		{
 
-
-			return new Response<T>()
-			{
-				StatusCode = System.Net.HttpStatusCode.OK,
-				Succeeded = true,
-			};
-		}
 		public Response<T> Success<T>(T entity, string message = null!, object Meta = null!)
 		{
 			return new Response<T>()
 			{
 				Data = entity,
-				StatusCode = System.Net.HttpStatusCode.OK,
+				StatusCode = HttpStatusCode.OK,
 				Succeeded = true,
 				Message = message == null ? "Success" : message,
-				Meta = Meta
+				Meta = Meta,
+				ErrorType = ErrorType.None.ToString()
 			};
 		}
-		public Response<T> Unauthorized<T>(string Message = null!)
+
+		public Response<T> Fail<T>(string message, ErrorType errorType = ErrorType.Unexpected)
 		{
 
-			return new Response<T>()
-			{
-				StatusCode = System.Net.HttpStatusCode.Unauthorized,
-				Succeeded = true,
-				Message = Message == null ? "Unauthorized" : Message
-			};
+			HttpStatusCode statusCode;
 
-		}
-		public Response<T> BadRequest<T>(string Message = null!)
-		{
-			return new Response<T>()
+			switch (errorType)
 			{
-				StatusCode = System.Net.HttpStatusCode.BadRequest,
+				case ErrorType.NotFound:
+					statusCode = HttpStatusCode.NotFound;
+					break;
+				case ErrorType.Unauthorized:
+					statusCode = HttpStatusCode.Unauthorized;
+					break;
+				case ErrorType.Validation:
+					statusCode = HttpStatusCode.BadRequest;
+					break;
+				default:
+					statusCode = HttpStatusCode.BadRequest;
+					break;
+			}
+
+			return new Response<T>
+			{
 				Succeeded = false,
-				Message = Message == null ? "Bad Request" : Message
-			};
-		}
-		public Response<T> UnprocessableEntity<T>(string Message = null!)
-		{
-			return new Response<T>()
-			{
-				StatusCode = System.Net.HttpStatusCode.UnprocessableEntity,
-				Succeeded = false,
-				Message = Message == null ? "Unprocessable Entity" : Message
-			};
-		}
-		public Response<T> NotFound<T>(string message = null!)
-		{
-			return new Response<T>()
-			{
-				StatusCode = System.Net.HttpStatusCode.NotFound,
-				Succeeded = false,
-				Message = message == null ? "Not Found" : message
-			};
-		}
-		public Response<T> Created<T>(T entity, string message = null!, object Meta = null!)
-		{
-			return new Response<T>()
-			{
-				Data = entity,
-				StatusCode = System.Net.HttpStatusCode.Created,
-				Succeeded = true,
-				Message = message == null ? "Created" : message,
-				Meta = Meta
+				Message = message,
+				ErrorType = errorType.ToString(),
+				StatusCode = statusCode,
 			};
 		}
 	}
+
 }

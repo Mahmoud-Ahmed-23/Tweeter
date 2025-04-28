@@ -20,8 +20,9 @@ namespace Tweeter.APIs
 			builder.Services.AddOpenApi();
 
 			builder.Services.AddPersistence(builder.Configuration);
-			builder.Services.AddApplicationServices();
+			builder.Services.AddApplicationServices(builder.Configuration);
 			builder.Services.RegesteredPresestantLayer();
+			builder.Services.AddIdentityServices(builder.Configuration);
 
 
 
@@ -30,6 +31,13 @@ namespace Tweeter.APIs
 			await app.InitializeDatabaseAsync();
 
 			app.UseMiddleware<ExeptionHandlerMiddleware>();
+
+			app.UseRouting();
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllers();
+			});
+
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
 			{

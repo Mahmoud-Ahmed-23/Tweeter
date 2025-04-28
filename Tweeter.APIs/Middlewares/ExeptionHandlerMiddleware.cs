@@ -16,7 +16,6 @@ namespace Tweeter.APIs.Middlewares
 			_logger = logger;
 			_env = env;
 		}
-
 		public async Task InvokeAsync(HttpContext httpContext)
 		{
 
@@ -28,10 +27,9 @@ namespace Tweeter.APIs.Middlewares
 
 				if (httpContext.Response.StatusCode == (int)HttpStatusCode.MethodNotAllowed)
 				{
-					httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 					httpContext.Response.ContentType = "application/json";
-					var respnse = new ApiResponse((int)HttpStatusCode.Unauthorized, $"You Are Not Authorized");
-					await httpContext.Response.WriteAsync(respnse.ToString());
+					var response = new ApiResponse((int)HttpStatusCode.MethodNotAllowed, $"Method Not Allowed");
+					await httpContext.Response.WriteAsync(response.ToString());
 				}
 
 			}
@@ -41,8 +39,7 @@ namespace Tweeter.APIs.Middlewares
 				{
 					_logger.LogError(ex, ex.Message);
 				}
-
-
+				
 				await HandleExeptionAsync(httpContext, ex);
 			}
 
@@ -91,6 +88,7 @@ namespace Tweeter.APIs.Middlewares
 					httpContext.Response.ContentType = "application/json";
 					response = new ApiResponse(401, ex.Message);
 					await httpContext.Response.WriteAsync(response.ToString());
+
 					break;
 
 				default:

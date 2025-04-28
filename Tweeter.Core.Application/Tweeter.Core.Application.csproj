@@ -12,6 +12,7 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageReference Include="MailKit" Version="4.11.0" />
     <PackageReference Include="MediatR" Version="12.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="MimeKit" Version="4.11.0" />
   </ItemGroup>
@@ -23,9 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Identity\Account\" />
-    <Folder Include="Features\Identity\Authentication\" />
-    <Folder Include="Features\Identity\Authorization\" />
+    <Folder Include="Features\Identity\Account\Command\Validators\" />
+    <Folder Include="Features\Identity\Account\Results\" />
+    <Folder Include="Features\Identity\Account\Queries\" />
+    <Folder Include="Features\Identity\Authentication\Command\Validators\" />
+    <Folder Include="Features\Identity\Authentication\Queries\" />
+    <Folder Include="Features\Identity\Authorization\Command\" />
+    <Folder Include="Features\Identity\Authorization\Queries\" />
   </ItemGroup>
 
 </Project>

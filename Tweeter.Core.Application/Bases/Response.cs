@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Bases
 {
@@ -38,5 +39,6 @@ namespace Tweeter.Core.Application.Bases
 		public string Message { get; set; }
 		public List<string> Errors { get; set; }
 		public T Data { get; set; }
+		public string ErrorType { get; set; }
 	}
 }
