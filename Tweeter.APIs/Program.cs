@@ -30,13 +30,8 @@ namespace Tweeter.APIs
 
 			await app.InitializeDatabaseAsync();
 
-			app.UseMiddleware<ExeptionHandlerMiddleware>();
-
-			app.UseRouting();
-			app.UseEndpoints(endpoints =>
-			{
-				endpoints.MapControllers();
-			});
+			app.UseMiddleware<ExceptionHandlerMiddleware>();
+			app.UseMiddleware<ErrorHandlerMiddleware>();
 
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
@@ -50,9 +45,12 @@ namespace Tweeter.APIs
 
 			app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
+			
+
+			app.UseRouting();
+
 			app.UseAuthentication();
 			app.UseAuthorization();
-
 
 			app.MapControllers();
 

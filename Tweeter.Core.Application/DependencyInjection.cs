@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -10,6 +11,9 @@ using System.Threading.Tasks;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
 using Tweeter.Core.Application.Bases;
+using Tweeter.Core.Application.Features.Identity.Account.Command.Validators;
+using Tweeter.Core.Application.Features.Identity.Authentication.Command.Validators;
+using Tweeter.Core.Application.Features.Identity.Behaviors;
 using Tweeter.Core.Application.Services.Identity.Account;
 using Tweeter.Core.Application.Services.Identity.Authentication;
 using Tweeter.Shared.Settings;
@@ -24,7 +28,8 @@ namespace Tweeter.Core.Application
 
 			services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-			services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+			services.AddValidatorsFromAssembly(typeof(RegisterValidators).Assembly);
+			services.AddValidatorsFromAssembly(typeof(LoginValidators).Assembly);
 
 			var JwtSettings = new JwtSettings();
 
@@ -38,6 +43,7 @@ namespace Tweeter.Core.Application
 
 			services.AddScoped(typeof(IAuthenticationService), typeof(AuthenticationService));
 
+			services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 			return services;
 		}

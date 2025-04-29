@@ -1,16 +1,17 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Tweeter.Shared.ErrorModule.Errors;
 using Tweeter.Shared.ErrorModule.Exeptions;
 
 namespace Tweeter.APIs.Middlewares
 {
-	public class ExeptionHandlerMiddleware
+	public class ExceptionHandlerMiddleware
 	{
 		private readonly RequestDelegate _next;
-		private readonly ILogger<ExeptionHandlerMiddleware> _logger;
+		private readonly ILogger<ExceptionHandlerMiddleware> _logger;
 		private readonly IHostEnvironment _env;
 
-		public ExeptionHandlerMiddleware(RequestDelegate next, ILogger<ExeptionHandlerMiddleware> logger, IHostEnvironment env)
+		public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger, IHostEnvironment env)
 		{
 			_next = next;
 			_logger = logger;
@@ -39,7 +40,7 @@ namespace Tweeter.APIs.Middlewares
 				{
 					_logger.LogError(ex, ex.Message);
 				}
-				
+
 				await HandleExeptionAsync(httpContext, ex);
 			}
 
@@ -54,16 +55,16 @@ namespace Tweeter.APIs.Middlewares
 
 			switch (ex)
 			{
-				case NotFoundExeption:
+				case NotFoundException notFound:
 
 					httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
 					httpContext.Response.ContentType = "application/json";
-					response = new ApiResponse(404, ex.Message);
-					await httpContext.Response.WriteAsync(response.ToString());
+					response = new ApiResponse(404, notFound.Message);
+					await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));
 
 					break;
 
-				case ValidationExeption validationExeption:
+				case ValidationException validationExeption:
 
 					httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 					httpContext.Response.ContentType = "application/json";
@@ -73,32 +74,32 @@ namespace Tweeter.APIs.Middlewares
 					break;
 
 
-				case BadRequestExeption:
+				case BadRequestException badRequest:
 
 					httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 					httpContext.Response.ContentType = "application/json";
-					response = new ApiResponse(400, ex.Message);
-					await httpContext.Response.WriteAsync(response.ToString());
+					response = new ApiResponse(400, badRequest.Message);
+					await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));
 
 					break;
 
-				case UnAuthorizedExeption:
+				case UnAuthorizedException unAuthorized:
 
 					httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 					httpContext.Response.ContentType = "application/json";
-					response = new ApiResponse(401, ex.Message);
-					await httpContext.Response.WriteAsync(response.ToString());
+					response = new ApiResponse(401, unAuthorized.Message);
+					await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));
 
 					break;
 
 				default:
-					response = _env.IsDevelopment() ? new ApiExeptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace?.ToString())
-						: new ApiExeptionResponse((int)HttpStatusCode.InternalServerError, ex.Message);
+					response = _env.IsDevelopment() ? new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace?.ToString())
+						: new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message);
 
 					httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 					httpContext.Response.ContentType = "application/json";
 
-					await httpContext.Response.WriteAsync(response.ToString());
+					await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));
 
 
 					break;

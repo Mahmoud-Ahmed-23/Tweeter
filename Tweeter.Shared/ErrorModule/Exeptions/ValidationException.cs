@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace Tweeter.Shared.ErrorModule.Exeptions
 {
-	public class ValidationExeption : BadRequestExeption
+	public class ValidationException : BadRequestException
 	{
 		public required IEnumerable<string> Errors { get; set; }
 
-		public ValidationExeption(string message = "Bad Request") : base(message)
-		{
-		}
-		public ValidationExeption(string message, Exception innerException) : base(message, innerException)
+		public ValidationException(string message = "Bad Request") : base(message)
 		{
 		}
 	}
