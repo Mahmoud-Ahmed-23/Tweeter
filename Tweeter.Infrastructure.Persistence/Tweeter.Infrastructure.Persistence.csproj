@@ -13,4 +13,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="8.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="_Data\Migrations\" />
+    <Folder Include="_Data\Interceptors\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tweeter.Core.Domain\Tweeter.Core.Domain.csproj" />
+    <ProjectReference Include="..\Tweeter.Shared\Tweeter.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
