@@ -45,6 +45,8 @@ namespace Tweeter.Core.Application
 
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
 
+            services.AddHttpContextAccessor();
+
 
             return services;
         }
