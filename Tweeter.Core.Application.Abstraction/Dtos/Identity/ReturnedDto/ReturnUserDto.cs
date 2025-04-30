@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tweeter.Core.Application.Abstraction.Dtos.Identity
+namespace Tweeter.Core.Application.Abstraction.Dtos.Identity.ReturnedDto
 {
 	public record ReturnUserDto
 	{
