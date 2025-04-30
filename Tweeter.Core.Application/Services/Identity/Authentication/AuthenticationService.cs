@@ -26,6 +26,50 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
             _jwtSettings = jwtSettings;
         }
 
+        public async Task<Result<ChangePasswordToReturn>> ChangePasswordAsync(ClaimsPrincipal claims, ChangePasswordDto changePasswordDto)
+        {
+            var userId = claims.FindFirst(ClaimTypes.PrimarySid)?.Value;
+
+            if (userId is null) return Result<ChangePasswordToReturn>.Fail("UnAuthorized , You Are Not Allowed", ErrorType.Unauthorized);
+
+
+            // Retrieve the user from the database
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null) return Result<ChangePasswordToReturn>.Fail("User Not Found", ErrorType.NotFound);
+
+
+            // Verify the current password
+            var isCurrentPasswordValid = await _userManager.CheckPasswordAsync(user, changePasswordDto.CurrentPassword);
+
+            if (!isCurrentPasswordValid)
+            {
+                return Result<ChangePasswordToReturn>.Fail("Current password is incorrect", ErrorType.BadRequest);
+            }
+
+            // Change the password
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return Result<ChangePasswordToReturn>.Fail($"Failed to change password: {errors}", ErrorType.BadRequest);
+            }
+
+            // Optionally, generate a new token for the user
+            var newToken = await GenerateToken(user);
+
+            return Result<ChangePasswordToReturn>.Success(new ChangePasswordToReturn(
+                Message: "Password changed successfully",
+                Token: newToken
+
+
+                ));
+
+
+
+        }
+
         public async Task<Result<ReturnUserDto>> Login(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
