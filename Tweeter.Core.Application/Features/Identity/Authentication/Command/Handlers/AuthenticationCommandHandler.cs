@@ -11,7 +11,8 @@ namespace Tweeter.Core.Application.Features.Identity.Authentication.Command.Hand
         : BaseHandler,
         IRequestHandler<LoginCommand, Response<ReturnUserDto>>,
         IRequestHandler<ResetPasswordCommand, Response<ReturnUserDto>>,
-        IRequestHandler<ChangePasswordCommand, Response<ChangePasswordToReturn>>
+        IRequestHandler<ChangePasswordCommand, Response<ChangePasswordToReturn>>,
+        IRequestHandler<LougOutCommand, Response<SuccessDto>>
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -43,6 +44,15 @@ namespace Tweeter.Core.Application.Features.Identity.Authentication.Command.Hand
 
             var result = await _authenticationService.ChangePasswordAsync(user!, request.ChangePasswordDto);
             return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<SuccessDto>> Handle(LougOutCommand request, CancellationToken cancellationToken)
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            var result = await _authenticationService.LougOutAsync(user!);
+            return await HandleResultAsync(Task.FromResult(result));
+
         }
     }
 }

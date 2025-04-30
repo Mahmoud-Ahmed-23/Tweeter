@@ -21,6 +21,7 @@
             public const string Login = prefix + "/Login";
             public const string ResetPassword = prefix + "/ResetPassword";
             public const string ChangePassword = prefix + "/ChangePassword";
+            public const string Logout = prefix + "/Logout";
 
         }
     }

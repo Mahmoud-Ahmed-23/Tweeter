@@ -12,5 +12,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Identity.Authentication
 
         Task<Result<ChangePasswordToReturn>> ChangePasswordAsync(ClaimsPrincipal claims, ChangePasswordDto changePasswordDto);
 
+        Task<Result<SuccessDto>> LougOutAsync(ClaimsPrincipal claimsPrincipal);
+
     }
 }
