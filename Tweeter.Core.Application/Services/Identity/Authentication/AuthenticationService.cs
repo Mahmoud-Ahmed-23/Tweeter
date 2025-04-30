@@ -188,5 +188,37 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
+        public async Task<Result<SuccessDto>> LougOutAsync(ClaimsPrincipal claimsPrincipal)
+        {
+            try
+            {
+                var userId = claimsPrincipal.FindFirst(ClaimTypes.PrimarySid)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Result<SuccessDto>.Fail("User not authenticated", ErrorType.Unauthorized);
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is null)
+                {
+                    return Result<SuccessDto>.Fail("User not found", ErrorType.NotFound);
+                }
+
+                await _signInManager.SignOutAsync();
+
+
+
+                return Result<SuccessDto>.Success(new SuccessDto(
+                    "Success",
+                    "Logged out successfully"));
+            }
+            catch (Exception ex)
+            {
+                return Result<SuccessDto>.Fail("Error during logout", ErrorType.Unexpected);
+            }
+        }
     }
 }

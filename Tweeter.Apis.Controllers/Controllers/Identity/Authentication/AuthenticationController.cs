@@ -31,6 +31,13 @@ namespace Tweeter.Apis.Controllers.Controllers.Identity.Authentication
             var result = await mediator.Send(new ChangePasswordCommand() { ChangePasswordDto = command });
             return NewResult(result);
         }
+        [Authorize]
+        [HttpPost(Router.AuthenticationRouting.Logout)]
+        public async Task<IActionResult> Logout()
+        {
+            var result = await mediator.Send(new LougOutCommand());
+            return NewResult(result);
+        }
 
     }
 
