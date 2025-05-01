@@ -14,5 +14,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Identity.Authentication
 
         Task<Result<SuccessDto>> LougOutAsync(ClaimsPrincipal claimsPrincipal);
 
+        Task<Result<ReturnUserDto>> GetCurrentUser(ClaimsPrincipal claimsPrincipal);
+
     }
 }

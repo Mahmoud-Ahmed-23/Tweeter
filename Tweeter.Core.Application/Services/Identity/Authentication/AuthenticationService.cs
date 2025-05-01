@@ -220,5 +220,27 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
                 return Result<SuccessDto>.Fail("Error during logout", ErrorType.Unexpected);
             }
         }
+
+        public async Task<Result<ReturnUserDto>> GetCurrentUser(ClaimsPrincipal claimsPrincipal)
+        {
+            var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email!);
+
+            if(user is null)
+                return Result<ReturnUserDto>.Fail("User not found", ErrorType.NotFound);
+
+
+            return Result<ReturnUserDto>.Success(new ReturnUserDto
+            {
+                Id = user.Id,
+                Email = user.Email!,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault(),
+                Token = await GenerateToken(user)
+            });
+
+        }
     }
 }
