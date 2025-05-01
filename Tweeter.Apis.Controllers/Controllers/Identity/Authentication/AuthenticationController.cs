@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tweeter.Apis.Controllers.Controllers.Base;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.Account;
 using Tweeter.Core.Application.Features.Identity.Authentication.Command.Models;
+using Tweeter.Core.Application.Features.Identity.Authentication.Queries.Models;
 using Tweeter.Core.Domain.AppMateData;
 
 namespace Tweeter.Apis.Controllers.Controllers.Identity.Authentication
@@ -36,6 +37,13 @@ namespace Tweeter.Apis.Controllers.Controllers.Identity.Authentication
         public async Task<IActionResult> Logout()
         {
             var result = await mediator.Send(new LougOutCommand());
+            return NewResult(result);
+        }
+        [Authorize]
+        [HttpGet(Router.AuthenticationRouting.GetCurrentUser)]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var result = await mediator.Send(new GetCurrentUserQuery());
             return NewResult(result);
         }
 
