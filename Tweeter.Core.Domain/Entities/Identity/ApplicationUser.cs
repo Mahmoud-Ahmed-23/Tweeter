@@ -2,14 +2,16 @@
 
 namespace Tweeter.Core.Domain.Entities.Identity
 {
-    public class ApplicationUser : IdentityUser
-    {
-        public required string FullName { get; set; }
-        public string? ProfilePictureUrl { get; set; }
+	public class ApplicationUser : IdentityUser
+	{
+		public required string FullName { get; set; }
+		public string? ProfilePictureUrl { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public int? ResetCode { get; set; }
-        public DateTime? ResetCodeExpiry { get; set; }
-    }
+		public int? ResetCode { get; set; }
+		public DateTime? ResetCodeExpiry { get; set; }
+
+		public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+	}
 }

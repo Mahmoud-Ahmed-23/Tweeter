@@ -7,26 +7,34 @@ using Tweeter.Core.Domain.AppMateData;
 
 namespace Tweeter.Apis.Controllers.Controllers.Identity.Account
 {
-    public class AccountController : BaseApiController
-    {
-        [HttpPost(Router.AccountRouting.Register)]
-        public async Task<ActionResult<ReturnUserDto>> Register([FromBody] RegisterDto registerDto)
-        {
-            var result = await mediator.Send(new RegisterCommand() { RegisterDto = registerDto });
-            return NewResult(result);
-        }
-        [HttpPost(Router.AccountRouting.SendCode)]
-        public async Task<ActionResult<SuccessDto>> ForgetPassword([FromBody] ForgetPasswordByEmailDto emailDto)
-        {
-            var result = await mediator.Send(new ForgetPasswordCommand() { ForgetPasswordByEmailDto = emailDto });
-            return NewResult(result);
-        }
-        [HttpPost(Router.AccountRouting.VerifyCode)]
-        public async Task<ActionResult<SuccessDto>> VerifyCode([FromBody] ResetCodeConfirmationByEmailDto resetCodeDto)
-        {
-            var result = await mediator.Send(new VerifiyCodeByEmailCommand() { ResetCodeConfirmationByEmailDto = resetCodeDto });
-            return NewResult(result);
-        }
-    }
+	public class AccountController : BaseApiController
+	{
+		[HttpPost(Router.AccountRouting.Register)]
+		public async Task<ActionResult<ReturnUserDto>> Register([FromBody] RegisterDto registerDto)
+		{
+			var result = await mediator.Send(new RegisterCommand() { RegisterDto = registerDto });
+			return NewResult(result);
+		}
+
+		[HttpPut(Router.AccountRouting.EditUser)]
+		public async Task<ActionResult<ReturnUserDto>> EditUser([FromBody] EditUserDto editUserDto)
+		{
+			var result = await mediator.Send(new EditUserCommand() { EditUserDto = editUserDto });
+			return NewResult(result);
+		}
+
+		[HttpPost(Router.AccountRouting.SendCode)]
+		public async Task<ActionResult<SuccessDto>> ForgetPassword([FromBody] ForgetPasswordByEmailDto emailDto)
+		{
+			var result = await mediator.Send(new ForgetPasswordCommand() { ForgetPasswordByEmailDto = emailDto });
+			return NewResult(result);
+		}
+		[HttpPost(Router.AccountRouting.VerifyCode)]
+		public async Task<ActionResult<SuccessDto>> VerifyCode([FromBody] ResetCodeConfirmationByEmailDto resetCodeDto)
+		{
+			var result = await mediator.Send(new VerifiyCodeByEmailCommand() { ResetCodeConfirmationByEmailDto = resetCodeDto });
+			return NewResult(result);
+		}
+	}
 
 }

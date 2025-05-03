@@ -11,123 +11,123 @@ using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Services.Identity.Account
 {
-    internal class AccountService : IAccountService
-    {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailService _emailService;
+	internal class AccountService : IAccountService
+	{
+		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly IEmailService _emailService;
 
-        public AccountService(UserManager<ApplicationUser> userManager, IEmailService emailService)
-        {
-            _userManager = userManager;
-            _emailService = emailService;
-        }
+		public AccountService(UserManager<ApplicationUser> userManager, IEmailService emailService)
+		{
+			_userManager = userManager;
+			_emailService = emailService;
+		}
 
-        public async Task<Result<SuccessDto>> SendCodeByEmailAsync(ForgetPasswordByEmailDto emailDto)
-        {
+		public async Task<Result<SuccessDto>> SendCodeByEmailAsync(ForgetPasswordByEmailDto emailDto)
+		{
 
-            var user = await _userManager.Users.Where(u => u.Email == emailDto.Email).FirstOrDefaultAsync();
+			var user = await _userManager.Users.Where(u => u.Email == emailDto.Email).FirstOrDefaultAsync();
 
-            if (user is null)
-                return Result<SuccessDto>.Fail("User Not Found", ErrorType.NotFound);
+			if (user is null)
+				return Result<SuccessDto>.Fail("User Not Found", ErrorType.NotFound);
 
-            var resetCode = RandomNumberGenerator.GetInt32(100_000, 999_999);
-            var resetCodeExpire = DateTime.UtcNow.AddMinutes(15);
+			var resetCode = RandomNumberGenerator.GetInt32(100_000, 999_999);
+			var resetCodeExpire = DateTime.UtcNow.AddMinutes(15);
 
-            user.ResetCode = resetCode;
-            user.ResetCodeExpiry = resetCodeExpire;
-            var result = await _userManager.UpdateAsync(user);
+			user.ResetCode = resetCode;
+			user.ResetCodeExpiry = resetCodeExpire;
+			var result = await _userManager.UpdateAsync(user);
 
-            if (!result.Succeeded)
-                return Result<SuccessDto>.Fail("Can't Update User", ErrorType.BadRequest);
+			if (!result.Succeeded)
+				return Result<SuccessDto>.Fail("Can't Update User", ErrorType.BadRequest);
 
-            var email = new Email()
-            {
-                To = emailDto.Email,
-                Subject = "Password Reset Code for Your Account",
-                Body = BuildResetPasswordEmail(resetCode),
-                IsBodyHtml = true
-            };
+			var email = new Email()
+			{
+				To = emailDto.Email,
+				Subject = "Password Reset Code for Your Account",
+				Body = BuildResetPasswordEmail(resetCode),
+				IsBodyHtml = true
+			};
 
-            await _emailService.SendEmail(email);
+			await _emailService.SendEmail(email);
 
-            var successObj = new SuccessDto(
-                Status: "Success",
-                Message: "We have sent a password reset code to your email"
-            );
+			var successObj = new SuccessDto(
+				Status: "Success",
+				Message: "We have sent a password reset code to your email"
+			);
 
-            return Result<SuccessDto>.Success(successObj);
-        }
-
-
-        public async Task<Result<ReturnUserDto>> Register(RegisterDto registerDto)
-        {
-            var isExist = await _userManager.FindByEmailAsync(registerDto.Email);
-
-            if (isExist is not null)
-            {
-                return Result<ReturnUserDto>.Fail("User already exists", ErrorType.NotFound);
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = registerDto.Email,
-                Email = registerDto.Email,
-                PhoneNumber = registerDto.PhoneNumber,
-                FullName = registerDto.FullName,
-                ProfilePictureUrl = registerDto.ProfilePictureUrl,
-            };
-
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-            if (!result.Succeeded)
-                return Result<ReturnUserDto>.Fail("Can't Create an Account :(", ErrorType.BadRequest);
+			return Result<SuccessDto>.Success(successObj);
+		}
 
 
-            await _userManager.AddToRoleAsync(user, registerDto.Role);
+		public async Task<Result<ReturnUserDto>> Register(RegisterDto registerDto)
+		{
+			var isExist = await _userManager.FindByEmailAsync(registerDto.Email);
 
-            return Result<ReturnUserDto>.Success(new ReturnUserDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber,
-                ProfilePictureUrl = user.ProfilePictureUrl,
-                Role = registerDto.Role
-            });
+			if (isExist is not null)
+			{
+				return Result<ReturnUserDto>.Fail("User already exists", ErrorType.NotFound);
+			}
 
-        }
+			var user = new ApplicationUser
+			{
+				UserName = registerDto.Email,
+				Email = registerDto.Email,
+				PhoneNumber = registerDto.PhoneNumber,
+				FullName = registerDto.FullName,
+				ProfilePictureUrl = registerDto.ProfilePictureUrl,
+			};
 
+			var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-        public async Task<Result<SuccessDto>> VerifyCodeByEmailAsync(ResetCodeConfirmationByEmailDto resetCodeDto)
-        {
-            var user = await _userManager.Users.Where(u => u.Email == resetCodeDto.Email).FirstOrDefaultAsync();
-
-            if (user is null)
-                return Result<SuccessDto>.Fail("User Not Found", ErrorType.NotFound);
-
-
-            if (user.ResetCode != resetCodeDto.ResetCode)
-                return Result<SuccessDto>.Fail("The Provided Code Is Not Valid", ErrorType.BadRequest);
+			if (!result.Succeeded)
+				return Result<ReturnUserDto>.Fail("Can't Create an Account :(", ErrorType.BadRequest);
 
 
+			await _userManager.AddToRoleAsync(user, registerDto.Role);
 
-            if (user.ResetCodeExpiry < DateTime.UtcNow)
-                return Result<SuccessDto>.Fail("The Provided Code Is Expired", ErrorType.BadRequest);
+			return Result<ReturnUserDto>.Success(new ReturnUserDto
+			{
+				Id = user.Id,
+				Email = user.Email,
+				FullName = user.FullName,
+				PhoneNumber = user.PhoneNumber,
+				ProfilePictureUrl = user.ProfilePictureUrl,
+				Role = registerDto.Role
+			});
 
-            var SuccessObj = new SuccessDto(
-
-                Status: "Success",
-                Message: "The Provided Code Is Valid, You Can Reset Your Password Now!"
+		}
 
 
-                );
-            return Result<SuccessDto>.Success(SuccessObj);
+		public async Task<Result<SuccessDto>> VerifyCodeByEmailAsync(ResetCodeConfirmationByEmailDto resetCodeDto)
+		{
+			var user = await _userManager.Users.Where(u => u.Email == resetCodeDto.Email).FirstOrDefaultAsync();
 
-        }
+			if (user is null)
+				return Result<SuccessDto>.Fail("User Not Found", ErrorType.NotFound);
 
-        private string BuildResetPasswordEmail(int resetCode)
-        {
-            return $@"
+
+			if (user.ResetCode != resetCodeDto.ResetCode)
+				return Result<SuccessDto>.Fail("The Provided Code Is Not Valid", ErrorType.BadRequest);
+
+
+
+			if (user.ResetCodeExpiry < DateTime.UtcNow)
+				return Result<SuccessDto>.Fail("The Provided Code Is Expired", ErrorType.BadRequest);
+
+			var SuccessObj = new SuccessDto(
+
+				Status: "Success",
+				Message: "The Provided Code Is Valid, You Can Reset Your Password Now!"
+
+
+				);
+			return Result<SuccessDto>.Success(SuccessObj);
+
+		}
+
+		private string BuildResetPasswordEmail(int resetCode)
+		{
+			return $@"
     <!DOCTYPE html>
     <html>
     <head>
@@ -155,8 +155,44 @@ namespace Tweeter.Core.Application.Services.Identity.Account
         </div>
     </body>
     </html>";
-        }
+		}
+
+		public async Task<Result<ReturnUserDto>> EditUser(EditUserDto editUserDto)
+		{
+			var user = await _userManager.FindByIdAsync(editUserDto.Id);
+
+			if (user is null)
+				return Result<ReturnUserDto>.Fail("User Not Found", ErrorType.NotFound);
+
+			var existsmail = await _userManager.FindByEmailAsync(editUserDto.Email);
+
+			if (existsmail is not null && existsmail.Id != user.Id)
+				return Result<ReturnUserDto>.Fail("Email Already Exist", ErrorType.BadRequest);
 
 
-    }
+			user.Email = editUserDto.Email;
+			user.UserName = editUserDto.Email;
+			user.PhoneNumber = editUserDto.PhoneNumber;
+			user.FullName = editUserDto.FullName;
+			user.ProfilePictureUrl = editUserDto.ProfilePictureUrl;
+
+
+
+			var result = await _userManager.UpdateAsync(user);
+
+			if (!result.Succeeded)
+				return Result<ReturnUserDto>.Fail("Can't Update User", ErrorType.BadRequest);
+
+			var returnUserDto = new ReturnUserDto
+			{
+				Id = user.Id,
+				Email = user.Email,
+				FullName = user.FullName,
+				PhoneNumber = user.PhoneNumber,
+				ProfilePictureUrl = user.ProfilePictureUrl
+			};
+
+			return Result<ReturnUserDto>.Success(returnUserDto);
+		}
+	}
 }

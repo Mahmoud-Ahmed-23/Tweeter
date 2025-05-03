@@ -10,22 +10,23 @@ using Tweeter.Shared._Common;
 
 namespace Tweeter.Core.Application.Features.Identity.Account.Command.Validators
 {
-	public class RegisterValidators : AbstractValidator<RegisterCommand>
+	public class EditUserValidator : AbstractValidator<EditUserCommand>
 	{
-
-		public RegisterValidators()
-		{
-			ApplyValidationRules();
-		}
-		public void ApplyValidationRules()
+		public EditUserValidator()
 		{
 			CascadeMode = CascadeMode.Stop;
 
-			RuleFor(x => x.RegisterDto.FullName)
+			RuleFor(x => x.EditUserDto.Id)
+				.NotEmpty()
+				.WithMessage("Id Must Not Empty , Plz Add a {PropertyName}")
+				.NotNull()
+				.WithMessage("Id Must Not null , Plz Add a {PropertyName}");
+
+			RuleFor(x => x.EditUserDto.FullName)
 				.NotEmpty()
 				.WithMessage("FullName Must Not Empty , Plz Add a {PropertyName}");
 
-			RuleFor(x => x.RegisterDto.Email)
+			RuleFor(x => x.EditUserDto.Email)
 				.NotEmpty()
 				.WithMessage("\"Email Must Not Empty , Plz Add a {PropertyName}\"")
 				.EmailAddress().WithMessage("Must Be Email Address")
@@ -33,21 +34,15 @@ namespace Tweeter.Core.Application.Features.Identity.Account.Command.Validators
 		 RegexOptions.IgnoreCase).WithMessage("Invalid Email Address,Only Gmail/Google or Egyptian university emails (@____.edu.eg) are allowed");
 
 
-			RuleFor(x => x.RegisterDto.Password)
-				.NotEmpty()
-				.WithMessage("\"Password Must Not Empty , Plz Add a {PropertyName}\"")
-				.Matches(RegexPatterns.Password).WithMessage("Password Must Be At Least 8 Characters, Contain At Least One Digit, And Can Include Special Characters");
-
-			RuleFor(x => x.RegisterDto.PhoneNumber)
+			RuleFor(x => x.EditUserDto.PhoneNumber)
 				.NotEmpty()
 				.WithMessage("PhoneNumber Must Not Empty , Plz Add a {PropertyName}")
 				.Matches(RegexPatterns.PhoneNumber).WithMessage("Invalid Egyptian phone number.");
 
-			RuleFor(x => x.RegisterDto.ProfilePictureUrl)
+			RuleFor(x => x.EditUserDto.ProfilePictureUrl)
 				.Matches(RegexPatterns.ProfilePictureUrl)
-				.When(x => !string.IsNullOrEmpty(x.RegisterDto.ProfilePictureUrl))
-				.WithMessage("Invalid image URL. Please provide a valid URL ending with .jpg, .jpeg, .png, or .gif.");
-
+				.When(x => !string.IsNullOrEmpty(x.EditUserDto.ProfilePictureUrl))
+				.WithMessage("Invalid image URL. Please provide a valid URL ending with .jpg, .jpeg, .png, or .gif."); ;
 		}
 	}
 }
