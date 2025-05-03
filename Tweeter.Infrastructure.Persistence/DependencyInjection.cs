@@ -19,6 +19,7 @@ namespace Tweeter.Infrastructure.Persistence
 
             services.AddScoped(typeof(IDbInitializer), typeof(TweeterDbInitializer));
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+            services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
             return services;
         }
