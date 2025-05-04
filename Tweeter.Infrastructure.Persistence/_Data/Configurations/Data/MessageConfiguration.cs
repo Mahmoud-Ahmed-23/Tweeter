@@ -11,6 +11,15 @@ namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
         {
             base.Configure(builder);
 
+            builder.Property(m => m.Content)
+                   .IsRequired()
+                   .HasMaxLength(280); // Assuming a max length for message content
+            builder.Property(m => m.SentAt)
+                     .IsRequired()
+                     .HasDefaultValueSql("GETDATE()"); // Default to current date/time
+
+
+
             // Configure Sender relationship
             builder.HasOne(m => m.Sender)
                   .WithMany(u => u.SentMessages)
