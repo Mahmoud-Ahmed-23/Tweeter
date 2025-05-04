@@ -226,7 +226,7 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
             var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
             var user = await _userManager.FindByEmailAsync(email!);
 
-            if(user is null)
+            if (user is null)
                 return Result<ReturnUserDto>.Fail("User not found", ErrorType.NotFound);
 
 

@@ -25,5 +25,21 @@
             public const string GetCurrentUser = prefix + "/GetCurrentUser";
 
         }
+        public static class ChatRouting
+        {
+            public const string prefix = Rule + "Chat";
+            public const string messagid = "/{messageid}";
+
+            public const string GetConversation = prefix + "/GetConversation";
+            public const string SendMessage = prefix + "/SendMessage";
+            public const string GetMessages = prefix + "/GetMessages";
+            public const string DeleteMessage = prefix + "/DeleteMessage";
+            public const string GetUnreadMessages = prefix + "/GetUnreadMessages";
+            public const string MarkAsRead = prefix + "/MarkAsRead";
+
+
+        }
+
+
     }
 }

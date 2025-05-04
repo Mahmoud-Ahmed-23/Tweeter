@@ -57,7 +57,7 @@ namespace Tweeter.APIs.Extensions
                 {
                     OnMessageReceived = context =>
                     {
-                        var accessToken = context.Request.Query["Token"];
+                        var accessToken = context.Request.Query["token"];
                         if (!string.IsNullOrEmpty(accessToken))
                         {
                             context.Token = accessToken;
