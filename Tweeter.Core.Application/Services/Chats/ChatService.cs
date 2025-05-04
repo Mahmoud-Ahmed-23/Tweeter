@@ -14,6 +14,13 @@ namespace Tweeter.Core.Application.Services.Chats
     {
         public async Task<Result<List<MessageDto>>> GetConversationAsync(string user1Id, string user2Id)
         {
+            // Check if the users are valid
+            var user1 = await userManager.Users.FirstOrDefaultAsync(u => u.Id == user1Id);
+            var user2 = await userManager.Users.FirstOrDefaultAsync(u => u.Id == user2Id);
+            if (user1 == null || user2 == null)
+            {
+                return Result<List<MessageDto>>.Fail("One or both users not found", ErrorType.NotFound);
+            }
 
 
 
@@ -43,6 +50,12 @@ namespace Tweeter.Core.Application.Services.Chats
 
         public async Task<Result<int>> GetUnreadMessageCountAsync(string userId)
         {
+            // Check if the user is valid
+            var user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return Result<int>.Fail("User not found", ErrorType.NotFound);
+            }
             var repo = unitOfWork.GetRepository<Message, int>();
             var unreadCount = await repo.GetQueryable().CountAsync(m => m.ReceiverId == userId && !m.IsRead);
             if (unreadCount == 0)
@@ -55,8 +68,17 @@ namespace Tweeter.Core.Application.Services.Chats
 
         }
 
-        public async Task<Result> MarkMessageAsReadAsync(int messageId, string userId)
+        public async Task<Result<bool>> MarkMessageAsReadAsync(int messageId, string userId)
         {
+
+            // Check if the user is valid
+            var user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return Result<bool>.Fail("User not found", ErrorType.NotFound);
+            }
+
+
 
 
             var message = await unitOfWork.GetRepository<Message, int>()
@@ -64,19 +86,20 @@ namespace Tweeter.Core.Application.Services.Chats
                 .FirstOrDefaultAsync(m => m.Id == messageId && m.ReceiverId == userId);
             if (message == null)
             {
-                return Result.Fail("Message not found", ErrorType.NotFound);
+                return Result<bool>.Fail("Message not found", ErrorType.NotFound);
             }
             if (message.IsRead)
             {
-                return Result.Fail("Message already marked as read", ErrorType.BadRequest);
+                return Result<bool>.Fail("Message already marked as read", ErrorType.BadRequest);
             }
             message.IsRead = true;
             var completed = await unitOfWork.CompleteAsync() > 0;
             if (!completed)
             {
-                return Result.Fail("Failed to mark message as read", ErrorType.Unexpected);
+                return Result<bool>.Fail("Failed to mark message as read", ErrorType.Unexpected);
             }
-            return Result.Success();
+            return Result<bool>.Success(true);
+
 
 
         }

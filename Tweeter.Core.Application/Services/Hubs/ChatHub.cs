@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Tweeter.Core.Application.Abstraction.Services.Chats;
 
 namespace Tweeter.Core.Application.Services.Hubs
 {
+    [Authorize]
     public class ChatHub(IChatService chatService, ILogger<ChatHub> logger) : Hub
     {
         public override async Task OnConnectedAsync()

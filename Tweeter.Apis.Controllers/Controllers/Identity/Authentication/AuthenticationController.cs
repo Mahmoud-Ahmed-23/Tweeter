@@ -33,6 +33,7 @@ namespace Tweeter.Apis.Controllers.Controllers.Identity.Authentication
             return NewResult(result);
         }
         [Authorize]
+
         [HttpPost(Router.AuthenticationRouting.Logout)]
         public async Task<IActionResult> Logout()
         {
