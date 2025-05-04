@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Tweeter.Core.Application.Abstraction.Services.Chats;
 using Tweeter.Core.Application.Abstraction.Services.Emails;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
@@ -10,6 +11,7 @@ using Tweeter.Core.Application.Bases;
 using Tweeter.Core.Application.Features.Identity.Account.Command.Validators;
 using Tweeter.Core.Application.Features.Identity.Authentication.Command.Validators;
 using Tweeter.Core.Application.Features.Identity.Behaviors;
+using Tweeter.Core.Application.Services.Chats;
 using Tweeter.Core.Application.Services.Emails;
 using Tweeter.Core.Application.Services.Identity.Account;
 using Tweeter.Core.Application.Services.Identity.Authentication;
@@ -40,12 +42,16 @@ namespace Tweeter.Core.Application
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
             services.AddScoped(typeof(IAuthenticationService), typeof(AuthenticationService));
+            services.AddScoped(typeof(IChatService), typeof(ChatService));
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
 
             services.AddHttpContextAccessor();
+
+            services.AddSignalR();
+
 
 
             return services;

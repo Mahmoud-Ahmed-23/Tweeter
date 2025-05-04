@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tweeter.Infrastructure.Persistence._Data;
 
@@ -11,9 +12,11 @@ using Tweeter.Infrastructure.Persistence._Data;
 namespace Tweeter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TweeterDbContext))]
-    partial class TweeterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503204623_Add_Tables")]
+    partial class Add_Tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -373,8 +376,7 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(280)
-                        .HasColumnType("nvarchar(280)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
@@ -388,9 +390,7 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("SentAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
