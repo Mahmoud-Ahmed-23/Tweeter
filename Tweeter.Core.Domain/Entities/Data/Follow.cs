@@ -10,7 +10,10 @@ namespace Tweeter.Core.Domain.Entities.Data
         //public DateTime FollowDate { get; set; }
 
         //Navigation properties
+        // This is the user who follows another user
         public virtual ApplicationUser Follower { get; set; }
+
+        // 
         public virtual ApplicationUser Followee { get; set; }
     }
 }
