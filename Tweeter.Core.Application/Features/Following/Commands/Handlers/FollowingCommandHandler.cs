@@ -7,7 +7,9 @@ using Tweeter.Core.Application.Features.Following.Commands.Models;
 
 namespace Tweeter.Core.Application.Features.Following.Commands.Handlers
 {
-    public class FollowingCommandHandler : BaseHandler, IRequestHandler<UserMakeFollowCommand, Response<bool>>
+    public class FollowingCommandHandler : BaseHandler,
+        IRequestHandler<UserMakeFollowCommand, Response<bool>>,
+        IRequestHandler<UserMakeUnFollowCommand, Response<bool>>
     {
         private readonly IFollowService _followService;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -28,6 +30,13 @@ namespace Tweeter.Core.Application.Features.Following.Commands.Handlers
 
 
 
+        }
+
+        public async Task<Response<bool>> Handle(UserMakeUnFollowCommand request, CancellationToken cancellationToken)
+        {
+            var followerId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
+            var result = await _followService.UnfollowUserAsync(followerId!, request.FolloweeId);
+            return await HandleResultAsync(Task.FromResult(result));
         }
     }
 }

@@ -16,6 +16,13 @@ namespace Tweeter.Apis.Controllers.Controllers.Following
             var result = await mediator.Send(command);
             return NewResult(result);
         }
+        [HttpDelete(Router.FollowingRouting.UnfollowUser)]
+        public async Task<ActionResult<bool>> UnFollowUser([FromQuery] string followeeid)
+        {
+            var command = new UserMakeUnFollowCommand(followeeid);
+            var result = await mediator.Send(command);
+            return NewResult(result);
 
+        }
     }
 }
