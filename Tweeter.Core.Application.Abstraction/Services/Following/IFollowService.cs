@@ -14,6 +14,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Following
         //Task<List<string>> GetFollowingAsync(string userId);
         Task<Result<int>> GetFollowerCountAsync(string userId);
         Task<Result<int>> GetFollowingCountAsync(string userId);
+        Task<Result<bool>> IsFollowingAsync(string followerId, string followeeId);
 
     }
 }

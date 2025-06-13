@@ -13,13 +13,13 @@ namespace Tweeter.Core.Application.Services.Following
     {
         public async Task<Result<bool>> FollowUserAsync(string followerId, string followeeId)
         {
-            // Check if the follower and followee exist
-            var follower = await userManager.FindByIdAsync(followerId);
-            var followee = await userManager.FindByIdAsync(followeeId);
-            if (follower is null || followee is null)
+            // Validate users
+            var validationResult = await ValidateUsersAsync(followerId, followeeId);
+            if (!validationResult.IsSuccess)
             {
-                return Result<bool>.Fail("Follower or Followee not found", ErrorType.NotFound);
+                return validationResult;
             }
+
             // Check if the follower is already following the followee
             var repo = _unitOfWork.GetRepository<Follow, int>();
             var existingFollow = await repo.GetQueryable()
@@ -28,37 +28,111 @@ namespace Tweeter.Core.Application.Services.Following
             {
                 return Result<bool>.Fail("You are already following this user", ErrorType.BadRequest);
             }
+
             // Create a new Following entity
             var following = new Follow
             {
                 FollowerId = followerId,
                 FolloweeId = followeeId,
             };
+
             // Add the new following relationship to the repository
             await repo.AddAsync(following);
+
             // Save changes to the database
             var completed = await _unitOfWork.CompleteAsync() > 0;
             if (!completed)
             {
                 return Result<bool>.Fail("Failed to follow user", ErrorType.Unexpected);
             }
+
             return Result<bool>.Success(true);
-
         }
 
-        public Task<Result<int>> GetFollowerCountAsync(string userId)
+        public async Task<Result<bool>> UnfollowUserAsync(string followerId, string followeeId)
         {
-            throw new NotImplementedException();
+            // Validate users
+            var validationResult = await ValidateUsersAsync(followerId, followeeId);
+            if (!validationResult.IsSuccess)
+            {
+                return validationResult;
+            }
+
+            // Check if the follower is following the followee
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var existingFollow = await repo.GetQueryable()
+                .FirstOrDefaultAsync(f => f.FollowerId == followerId && f.FolloweeId == followeeId);
+            if (existingFollow is null)
+            {
+                return Result<bool>.Fail("You are not following this user", ErrorType.BadRequest);
+            }
+
+            // Remove the following relationship from the repository
+            repo.Delete(existingFollow);
+
+            // Save changes to the database
+            var completed = await _unitOfWork.CompleteAsync() > 0;
+            if (!completed)
+            {
+                return Result<bool>.Fail("Failed to unfollow user", ErrorType.Unexpected);
+            }
+
+            return Result<bool>.Success(true);
+        }
+        private async Task<Result<bool>> ValidateUsersAsync(string followerId, string followeeId)
+        {
+            var follower = await userManager.FindByIdAsync(followerId);
+            var followee = await userManager.FindByIdAsync(followeeId);
+            if (follower is null || followee is null)
+            {
+                return Result<bool>.Fail("Follower or Followee not found", ErrorType.NotFound);
+            }
+            return Result<bool>.Success(true);
         }
 
-        public Task<Result<int>> GetFollowingCountAsync(string userId)
+        public async Task<Result<int>> GetFollowerCountAsync(string userId)
         {
-            throw new NotImplementedException();
+            // Validate user
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return Result<int>.Fail("User not found", ErrorType.NotFound);
+            }
+            // Get the count of followers
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var followerCount = await repo.GetQueryable()
+                .CountAsync(f => f.FolloweeId == userId);
+            return Result<int>.Success(followerCount);
         }
 
-        public Task<Result<bool>> UnfollowUserAsync(string followerId, string followeeId)
+        public async Task<Result<int>> GetFollowingCountAsync(string userId)
         {
-            throw new NotImplementedException();
+            // Validate user
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return Result<int>.Fail("User not found", ErrorType.NotFound);
+            }
+            // Get the count of following
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var followingCount = await repo.GetQueryable()
+                .CountAsync(f => f.FollowerId == userId);
+            return Result<int>.Success(followingCount);
+        }
+
+        public async Task<Result<bool>> IsFollowingAsync(string followerId, string followeeId)
+        {
+            // Validate users
+            var validationResult = await ValidateUsersAsync(followerId, followeeId);
+            if (!validationResult.IsSuccess)
+            {
+                return validationResult;
+            }
+            // Check if the follower is following the followee
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var isFollowing = await repo.GetQueryable()
+                .AnyAsync(f => f.FollowerId == followerId && f.FolloweeId == followeeId);
+            return Result<bool>.Success(isFollowing);
         }
     }
 }
