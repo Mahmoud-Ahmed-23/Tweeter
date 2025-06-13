@@ -120,9 +120,19 @@ namespace Tweeter.Core.Application.Services.Following
             return Result<int>.Success(followingCount);
         }
 
-        public Task<Result<bool>> IsFollowingAsync(string followerId, string followeeId)
+        public async Task<Result<bool>> IsFollowingAsync(string followerId, string followeeId)
         {
-            throw new NotImplementedException();
+            // Validate users
+            var validationResult = await ValidateUsersAsync(followerId, followeeId);
+            if (!validationResult.IsSuccess)
+            {
+                return validationResult;
+            }
+            // Check if the follower is following the followee
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var isFollowing = await repo.GetQueryable()
+                .AnyAsync(f => f.FollowerId == followerId && f.FolloweeId == followeeId);
+            return Result<bool>.Success(isFollowing);
         }
     }
 }

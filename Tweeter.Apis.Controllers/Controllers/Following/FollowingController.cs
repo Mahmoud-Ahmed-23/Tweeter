@@ -37,5 +37,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Following
             var result = await mediator.Send(new GetCountFollowingQuery());
             return NewResult(result);
         }
+        [HttpGet(Router.FollowingRouting.IsFollowing)]
+        public async Task<ActionResult<bool>> IsFollowing([FromQuery] string followeeid)
+        {
+            var result = await mediator.Send(new IsFollowingQuery(followeeid));
+            return NewResult(result);
+        }
     }
 }
