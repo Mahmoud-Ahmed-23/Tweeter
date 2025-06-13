@@ -90,16 +90,29 @@ namespace Tweeter.Core.Application.Services.Following
             return Result<bool>.Success(true);
         }
 
-        public Task<Result<int>> GetFollowerCountAsync(string userId)
+        public async Task<Result<int>> GetFollowerCountAsync(string userId)
+        {
+            // Validate user
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return Result<int>.Fail("User not found", ErrorType.NotFound);
+            }
+            // Get the count of followers
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var followerCount = await repo.GetQueryable()
+                .CountAsync(f => f.FolloweeId == userId);
+            return Result<int>.Success(followerCount);
+        }
+
+        public  Task<Result<int>> GetFollowingCountAsync(string userId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result<int>> GetFollowingCountAsync(string userId)
+        public Task<Result<bool>> IsFollowingAsync(string followerId, string followeeId)
         {
             throw new NotImplementedException();
         }
-
-
     }
 }

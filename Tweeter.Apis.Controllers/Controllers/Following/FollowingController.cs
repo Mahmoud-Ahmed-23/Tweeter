@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Tweeter.Apis.Controllers.Controllers.Base;
 using Tweeter.Core.Application.Features.Following.Commands.Models;
+using Tweeter.Core.Application.Features.Following.Queries.Models;
 using Tweeter.Core.Domain.AppMateData;
 
 namespace Tweeter.Apis.Controllers.Controllers.Following
@@ -23,6 +24,12 @@ namespace Tweeter.Apis.Controllers.Controllers.Following
             var result = await mediator.Send(command);
             return NewResult(result);
 
+        }
+        [HttpGet(Router.FollowingRouting.GetCountOfFollowers)]
+        public async Task<ActionResult<int>> GetCountOfFollowers()
+        {
+            var result = await mediator.Send(new GetCountFollersQuery());
+            return NewResult(result);
         }
     }
 }

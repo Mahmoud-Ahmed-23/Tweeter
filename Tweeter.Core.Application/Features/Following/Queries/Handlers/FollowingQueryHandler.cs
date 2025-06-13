@@ -1,0 +1,28 @@
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Tweeter.Core.Application.Abstraction.Services.Following;
+using Tweeter.Core.Application.Bases;
+using Tweeter.Core.Application.Features.Following.Queries.Models;
+
+namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
+{
+    public class FollowingQueryHandler : BaseHandler, IRequestHandler<GetCountFollersQuery, Response<int>>
+    {
+        private readonly IFollowService _followService;
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        public FollowingQueryHandler(IFollowService followService, IHttpContextAccessor contextAccessor)
+        {
+            _followService = followService;
+            _contextAccessor = contextAccessor;
+        }
+        public async Task<Response<int>> Handle(GetCountFollersQuery request, CancellationToken cancellationToken)
+        {
+            var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
+
+            var result = await _followService.GetFollowerCountAsync(userId!);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+    }
+}
