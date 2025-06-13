@@ -44,7 +44,7 @@
         {
             public const string prefix = Rule + "Following";
             public const string GetCountOfFollowers = prefix + "/GetCountOfFollowers";
-            public const string GetFollowees = prefix + "/GetFollowees";
+            public const string GetCountOfFollowing = prefix + "/GetCountOfFollowing";
             public const string FollowUser = prefix + "/FollowUser";
             public const string UnfollowUser = prefix + "/UnfollowUser";
             public const string IsFollowing = prefix + "/IsFollowing";

@@ -7,7 +7,9 @@ using Tweeter.Core.Application.Features.Following.Queries.Models;
 
 namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
 {
-    public class FollowingQueryHandler : BaseHandler, IRequestHandler<GetCountFollersQuery, Response<int>>
+    public class FollowingQueryHandler : BaseHandler,
+        IRequestHandler<GetCountFollersQuery, Response<int>>,
+        IRequestHandler<GetCountFollowingQuery, Response<int>>
     {
         private readonly IFollowService _followService;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -22,6 +24,13 @@ namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
             var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
 
             var result = await _followService.GetFollowerCountAsync(userId!);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<int>> Handle(GetCountFollowingQuery request, CancellationToken cancellationToken)
+        {
+            var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
+            var result = await _followService.GetFollowingCountAsync(userId!);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }
