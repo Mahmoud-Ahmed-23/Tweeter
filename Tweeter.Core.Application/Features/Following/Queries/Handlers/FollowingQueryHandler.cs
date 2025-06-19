@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Tweeter.Core.Application.Abstraction.Dtos.Following;
 using Tweeter.Core.Application.Abstraction.Services.Following;
 using Tweeter.Core.Application.Bases;
 using Tweeter.Core.Application.Features.Following.Queries.Models;
@@ -10,7 +11,8 @@ namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
     public class FollowingQueryHandler : BaseHandler,
         IRequestHandler<GetCountFollersQuery, Response<int>>,
         IRequestHandler<GetCountFollowingQuery, Response<int>>,
-        IRequestHandler<IsFollowingQuery, Response<bool>>
+        IRequestHandler<IsFollowingQuery, Response<bool>>,
+        IRequestHandler<GetFollwersQuery, Response<List<UsersToReturn>>>
     {
         private readonly IFollowService _followService;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -39,6 +41,14 @@ namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
         {
             var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
             var result = await _followService.IsFollowingAsync(userId!, request.FolloweeId);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<List<UsersToReturn>>> Handle(GetFollwersQuery request, CancellationToken cancellationToken)
+        {
+
+            var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
+            var result = await _followService.GetFollowersAsync(userId!);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }

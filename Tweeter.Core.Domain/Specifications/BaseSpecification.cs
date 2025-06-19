@@ -19,7 +19,7 @@ namespace Tweeter.Core.Domain.Specifications
         public BaseSpecification()
         {
         }
-        private protected void AddIncludes()
+        private protected virtual void AddIncludes()
         {
 
         }

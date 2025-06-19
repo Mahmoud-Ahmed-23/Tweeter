@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tweeter.Apis.Controllers.Controllers.Base;
+using Tweeter.Core.Application.Abstraction.Dtos.Following;
 using Tweeter.Core.Application.Features.Following.Commands.Models;
 using Tweeter.Core.Application.Features.Following.Queries.Models;
 using Tweeter.Core.Domain.AppMateData;
@@ -41,6 +42,12 @@ namespace Tweeter.Apis.Controllers.Controllers.Following
         public async Task<ActionResult<bool>> IsFollowing([FromQuery] string followeeid)
         {
             var result = await mediator.Send(new IsFollowingQuery(followeeid));
+            return NewResult(result);
+        }
+        [HttpGet(Router.FollowingRouting.GetFollowers)]
+        public async Task<ActionResult<List<UsersToReturn>>> GetFollowers()
+        {
+            var result = await mediator.Send(new GetFollwersQuery());
             return NewResult(result);
         }
     }
