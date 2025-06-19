@@ -1,4 +1,5 @@
 ﻿using Tweeter.Core.Domain.Common;
+using Tweeter.Core.Domain.Contracts.Specifications;
 
 namespace Tweeter.Core.Domain.Contracts.Persistence
 {
@@ -12,7 +13,11 @@ namespace Tweeter.Core.Domain.Contracts.Persistence
 
         IQueryable<TEntity> GetQueryable();
 
+        Task<IEnumerable<TEntity>> GetAllWithSpecAsync(ISpecification<TEntity, TKey> Spec, bool WithTraching = false);
 
+        Task<TEntity?> GetWithSpecAsync(ISpecification<TEntity, TKey> spec);
+
+        Task<int> GetCountAsync(ISpecification<TEntity, TKey> spec);
 
         Task AddAsync(TEntity entity);
 

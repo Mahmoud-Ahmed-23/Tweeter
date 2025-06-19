@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Tweeter.Shared\Tweeter.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Dtos\Following\" />
-  </ItemGroup>
-
 </Project>
