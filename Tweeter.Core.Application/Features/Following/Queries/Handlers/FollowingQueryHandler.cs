@@ -12,7 +12,8 @@ namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
         IRequestHandler<GetCountFollersQuery, Response<int>>,
         IRequestHandler<GetCountFollowingQuery, Response<int>>,
         IRequestHandler<IsFollowingQuery, Response<bool>>,
-        IRequestHandler<GetFollwersQuery, Response<List<UsersToReturn>>>
+        IRequestHandler<GetFollwersQuery, Response<List<UsersToReturn>>>,
+        IRequestHandler<GetFollowingQuery, Response<List<UsersToReturn>>>
     {
         private readonly IFollowService _followService;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -49,6 +50,13 @@ namespace Tweeter.Core.Application.Features.Following.Queries.Handlers
 
             var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
             var result = await _followService.GetFollowersAsync(userId!);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<List<UsersToReturn>>> Handle(GetFollowingQuery request, CancellationToken cancellationToken)
+        {
+            var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.PrimarySid);
+            var result = await _followService.GetFollowingAsync(userId!);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }

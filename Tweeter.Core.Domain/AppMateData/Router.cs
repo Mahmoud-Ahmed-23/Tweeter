@@ -46,6 +46,7 @@
             public const string GetCountOfFollowers = prefix + "/GetCountOfFollowers";
             public const string GetCountOfFollowing = prefix + "/GetCountOfFollowing";
             public const string GetFollowers = prefix + "/GetFollowers";
+            public const string GetFollowing = prefix + "/GetFollowing";
             public const string FollowUser = prefix + "/FollowUser";
             public const string UnfollowUser = prefix + "/UnfollowUser";
             public const string IsFollowing = prefix + "/IsFollowing";

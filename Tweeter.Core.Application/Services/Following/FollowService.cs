@@ -156,9 +156,28 @@ namespace Tweeter.Core.Application.Services.Following
             return Result<List<UsersToReturn>>.Success(data, followersCount);
         }
 
-        public Task<Result<List<UsersToReturn>>> GetFollowingAsync(string userId)
+        public async Task<Result<List<UsersToReturn>>> GetFollowingAsync(string userId)
         {
-            throw new NotImplementedException();
+
+
+            // Validate user
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return Result<List<UsersToReturn>>.Fail("User not found", ErrorType.NotFound);
+            }
+            // Get following
+            var repo = _unitOfWork.GetRepository<Follow, int>();
+            var following = await repo.GetQueryable()
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.Followee)
+                .ToListAsync();
+            var followingCount = following.Count;
+            // Map to UsersToReturn DTO
+            var data = _mapper.Map<List<UsersToReturn>>(following);
+            return Result<List<UsersToReturn>>.Success(data, followingCount);
+
+
         }
 
         //public async Task<Result<Pagination<UsersToReturn>>> GetFollowersAsync(string Userid, SpecParams specParams)
