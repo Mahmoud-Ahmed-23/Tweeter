@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,12 +21,14 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly JwtSettings _jwtSettings;
+		private readonly IConfiguration _configuration;
 
-		public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtSettings jwtSettings)
+		public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtSettings jwtSettings, IConfiguration configuration)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_jwtSettings = jwtSettings;
+			_configuration = configuration;
 		}
 
 		public async Task<Result<ChangePasswordToReturn>> ChangePasswordAsync(ClaimsPrincipal claims, ChangePasswordDto changePasswordDto)
@@ -91,13 +94,17 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 			if (!result.Succeeded)
 				return Result<ReturnUserDto>.Fail("Invalid password", ErrorType.Unauthorized);
 
+			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
+		? string.Empty
+		: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+
 			var returnUser = Result<ReturnUserDto>.Success(new ReturnUserDto
 			{
 				Id = user.Id,
 				Email = user.Email!,
 				FullName = user.FullName,
 				PhoneNumber = user.PhoneNumber,
-				ProfilePictureUrl = user.ProfilePictureUrl,
+				ProfilePictureUrl = profilePictureUrl,
 				Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault(),
 				Token = await GenerateToken(user)
 			});
@@ -378,6 +385,9 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 			if (user is null)
 				return Result<ReturnUserDto>.Fail("User not found", ErrorType.NotFound);
 
+			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
+									? string.Empty
+									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
 
 			return Result<ReturnUserDto>.Success(new ReturnUserDto
 			{
@@ -385,7 +395,7 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 				Email = user.Email!,
 				FullName = user.FullName,
 				PhoneNumber = user.PhoneNumber,
-				ProfilePictureUrl = user.ProfilePictureUrl,
+				ProfilePictureUrl = profilePictureUrl,
 				Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault(),
 				Token = await GenerateToken(user)
 			});

@@ -43,10 +43,10 @@ namespace Tweeter.Core.Application.Features.Identity.Account.Command.Validators
 				.WithMessage("PhoneNumber Must Not Empty , Plz Add a {PropertyName}")
 				.Matches(RegexPatterns.PhoneNumber).WithMessage("Invalid Egyptian phone number.");
 
-			RuleFor(x => x.RegisterDto.ProfilePictureUrl)
-				.Matches(RegexPatterns.ProfilePictureUrl)
-				.When(x => !string.IsNullOrEmpty(x.RegisterDto.ProfilePictureUrl))
-				.WithMessage("Invalid image URL. Please provide a valid URL ending with .jpg, .jpeg, .png, or .gif.");
+			//RuleFor(x => x.RegisterDto.ProfilePictureUrl)
+			//	.Matches(RegexPatterns.ProfilePictureUrl)
+			//	.When(x => !string.IsNullOrEmpty(x.RegisterDto.ProfilePictureUrl))
+			//	.WithMessage("Invalid image URL. Please provide a valid URL ending with .jpg, .jpeg, .png, or .gif.");
 
 		}
 	}

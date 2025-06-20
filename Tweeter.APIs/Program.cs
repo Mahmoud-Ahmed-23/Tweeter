@@ -3,7 +3,7 @@ using Tweeter.APIs.Middlewares;
 using Tweeter.Core.Application;
 using Tweeter.Core.Application.Services.Hubs;
 using Tweeter.Infrastructure.Persistence;
-
+using Tweeter.Infrastructure;
 namespace Tweeter.APIs
 {
     public class Program
@@ -22,6 +22,7 @@ namespace Tweeter.APIs
             builder.Services.AddApplicationServices(builder.Configuration);
             builder.Services.RegesteredPresestantLayer();
             builder.Services.AddIdentityServices(builder.Configuration);
+            builder.Services.AddInfrastructureServices(builder.Configuration);
 
 
 
@@ -46,6 +47,7 @@ namespace Tweeter.APIs
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
 
+            app.UseStaticFiles();
 
             app.UseRouting();
 
