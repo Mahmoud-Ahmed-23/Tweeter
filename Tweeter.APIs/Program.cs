@@ -29,7 +29,7 @@ namespace Tweeter.APIs
 
             await app.InitializeDatabaseAsync();
 
-            app.UseMiddleware<ExceptionHandlerMiddleware>();
+            //app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseMiddleware<ErrorHandlerMiddleware>();
 
             // Configure the HTTP request pipeline.
