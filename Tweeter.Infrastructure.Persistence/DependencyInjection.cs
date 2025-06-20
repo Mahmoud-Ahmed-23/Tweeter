@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tweeter.Core.Domain.Contracts.Persistence;
 using Tweeter.Infrastructure.Persistence._Data;
+using Tweeter.Infrastructure.Persistence._Data.Interceptors;
 using Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository;
 
 namespace Tweeter.Infrastructure.Persistence
@@ -14,8 +15,10 @@ namespace Tweeter.Infrastructure.Persistence
             services.AddDbContext<TweeterDbContext>((provider, options) =>
             {
                 var connectionString = configuration.GetConnectionString("TweeterContext");
-                options.UseSqlServer(connectionString);
+                options.UseLazyLoadingProxies().UseSqlServer(connectionString)
+                .AddInterceptors(provider.GetRequiredService<AuditInterceptor>());
             });
+            services.AddScoped(typeof(AuditInterceptor));
 
             services.AddScoped(typeof(IDbInitializer), typeof(TweeterDbInitializer));
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));

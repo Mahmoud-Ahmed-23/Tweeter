@@ -6,5 +6,13 @@ namespace Tweeter.Core.Application.Features.Identity.Authentication.Queries.Mode
 {
     public class GetCurrentUserQuery : IRequest<Response<ReturnUserDto>>
     {
+        public GetCurrentUserQuery()
+        {
+        }
+        public GetCurrentUserQuery(string id)
+        {
+            Id = id;
+        }
+        public string Id { get; set; }
     }
 }

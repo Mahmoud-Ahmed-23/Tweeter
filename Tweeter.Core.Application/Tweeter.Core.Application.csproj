@@ -27,6 +27,7 @@
     <Folder Include="Features\Identity\Account\Queries\" />
     <Folder Include="Features\Identity\Authorization\Command\" />
     <Folder Include="Features\Identity\Authorization\Queries\" />
+    <Folder Include="Features\Messages\Commands\" />
   </ItemGroup>
 
 </Project>

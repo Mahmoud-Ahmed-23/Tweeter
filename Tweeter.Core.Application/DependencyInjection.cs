@@ -3,16 +3,25 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Tweeter.Core.Application.Abstraction.Services.Chats;
 using Tweeter.Core.Application.Abstraction.Services.Emails;
+using Tweeter.Core.Application.Abstraction.Services.Following;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
+using Tweeter.Core.Application.Abstraction.Services.Notifications;
 using Tweeter.Core.Application.Bases;
+using Tweeter.Core.Application.Features.Behaviors;
 using Tweeter.Core.Application.Features.Identity.Account.Command.Validators;
 using Tweeter.Core.Application.Features.Identity.Authentication.Command.Validators;
+using Tweeter.Core.Application.Mapping;
+using Tweeter.Core.Application.Services.Chats;
+using Tweeter.Core.Application.Services.Emails;
+using Tweeter.Core.Application.Services.Following;
 using Tweeter.Core.Application.Features.Identity.Behaviors;
 using Tweeter.Core.Application.Services.Emails;
 using Tweeter.Core.Application.Services.Identity.Account;
 using Tweeter.Core.Application.Services.Identity.Authentication;
+using Tweeter.Core.Application.Services.Notifications;
 using Tweeter.Shared.Settings;
 
 namespace Tweeter.Core.Application
@@ -34,18 +43,33 @@ namespace Tweeter.Core.Application
 
             services.AddSingleton(JwtSettings);
 
+            #region Registration Services
             services.AddScoped<IBaseHandler, BaseHandler>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped(typeof(INotificationService), typeof(NotificationService));
 
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
             services.AddScoped(typeof(IAuthenticationService), typeof(AuthenticationService));
-
+            services.AddScoped(typeof(IChatService), typeof(ChatService));
+            services.AddScoped(typeof(IFollowService), typeof(FollowService));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            #endregion
+
 
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
 
             services.AddHttpContextAccessor();
+
+            services.AddSignalR();
+
+
+            // add mapping for the application
+
+            services.AddAutoMapper(typeof(MappingProfile));
+
+
 
 
             return services;

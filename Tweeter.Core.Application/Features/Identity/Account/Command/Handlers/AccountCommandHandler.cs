@@ -16,14 +16,14 @@ namespace Tweeter.Core.Application.Features.Identity.Account.Command.Handlers
 	{
 		private readonly IAccountService _accountService;
 
-		public AccountCommandHandler(IAccountService accountService)
-		{
-			_accountService = accountService;
-		}
+        public AccountCommandHandler(IAccountService accountService)
+        {
+            _accountService = accountService;
+        }
 
-		public async Task<Response<ReturnUserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
-		{
-			var result = await _accountService.Register(request.RegisterDto);
+        public async Task<Response<ReturnUserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _accountService.Register(request.RegisterDto);
 
 			return await HandleResultAsync(Task.FromResult(result));
 		}

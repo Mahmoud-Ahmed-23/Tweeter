@@ -1,13 +1,13 @@
 ﻿namespace Tweeter.Core.Domain.AppMateData
 {
-	public class Router
-	{
-		public const string root = "api";
-		public const string version = "v1";
-		public const string Rule = root + "/" + version + "/";
-		public static class AccountRouting
-		{
-			public const string prefix = Rule + "Account";
+    public class Router
+    {
+        public const string root = "api";
+        public const string version = "v1";
+        public const string Rule = root + "/" + version + "/";
+        public static class AccountRouting
+        {
+            public const string prefix = Rule + "Account";
 
 			public const string Register = prefix + "/Register";
 			public const string EditUser = prefix + "/EditUser";

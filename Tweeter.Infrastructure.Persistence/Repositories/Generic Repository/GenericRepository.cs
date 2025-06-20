@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tweeter.Core.Domain.Common;
 using Tweeter.Core.Domain.Contracts.Persistence;
+using Tweeter.Core.Domain.Contracts.Specifications;
+using Tweeter.Infrastructure.Persistence._Common;
 using Tweeter.Infrastructure.Persistence._Data;
 
 namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
@@ -29,7 +31,20 @@ namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
 
 
 
+        public async Task<IEnumerable<TEntity>> GetAllWithSpecAsync(ISpecification<TEntity, TKey> Spec, bool WithTraching = false)
+        {
+            return WithTraching ? await ApplySpecifications(Spec).ToListAsync() : await ApplySpecifications(Spec).AsNoTracking().ToListAsync();
+        }
 
+        public async Task<TEntity?> GetWithSpecAsync(ISpecification<TEntity, TKey> spec)
+        {
+            return await ApplySpecifications(spec).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> GetCountAsync(ISpecification<TEntity, TKey> spec)
+        {
+            return await ApplySpecifications(spec).CountAsync();
+        }
 
 
 
@@ -57,6 +72,10 @@ namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
         public async Task<TEntity?> GetAsync(TKey id)
         {
             return await _dbContext.Set<TEntity>().FindAsync(id);
+        }
+        private IQueryable<TEntity> ApplySpecifications(ISpecification<TEntity, TKey> Spec)
+        {
+            return SpecificationEvaluator<TEntity, TKey>.GetQuery(_dbContext.Set<TEntity>(), Spec);
         }
     }
 

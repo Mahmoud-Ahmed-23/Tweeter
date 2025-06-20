@@ -15,18 +15,18 @@ using Tweeter.Shared.Settings;
 
 namespace Tweeter.Core.Application.Services.Identity.Authentication
 {
-	internal class AuthenticationService : IAuthenticationService
-	{
-		private readonly UserManager<ApplicationUser> _userManager;
-		private readonly SignInManager<ApplicationUser> _signInManager;
-		private readonly JwtSettings _jwtSettings;
+    internal class AuthenticationService : IAuthenticationService
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly JwtSettings _jwtSettings;
 
-		public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtSettings jwtSettings)
-		{
-			_userManager = userManager;
-			_signInManager = signInManager;
-			_jwtSettings = jwtSettings;
-		}
+        public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtSettings jwtSettings)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _jwtSettings = jwtSettings;
+        }
 
 		public async Task<Result<ChangePasswordToReturn>> ChangePasswordAsync(ClaimsPrincipal claims, ChangePasswordDto changePasswordDto)
 		{
@@ -76,20 +76,20 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 		{
 			var user = await _userManager.FindByEmailAsync(email);
 
-			if (user is null)
-				return Result<ReturnUserDto>.Fail("User not found", ErrorType.NotFound);
+            if (user is null)
+                return Result<ReturnUserDto>.Fail("User not found", ErrorType.NotFound);
 
-			var result = await _signInManager.CheckPasswordSignInAsync(user, password, true);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, true);
 
 			if (!user.EmailConfirmed)
 				return Result<ReturnUserDto>.Fail("Email is not confirmed");
 
-			if (result.IsLockedOut)
-				return Result<ReturnUserDto>.Fail("User is locked out", ErrorType.BadRequest);
+            if (result.IsLockedOut)
+                return Result<ReturnUserDto>.Fail("User is locked out", ErrorType.BadRequest);
 
 
-			if (!result.Succeeded)
-				return Result<ReturnUserDto>.Fail("Invalid password", ErrorType.BadRequest);
+            if (!result.Succeeded)
+                return Result<ReturnUserDto>.Fail("Invalid password", ErrorType.BadRequest);
 
 			var returnUser = Result<ReturnUserDto>.Success(new ReturnUserDto
 			{
@@ -168,22 +168,22 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 			var roles = await _userManager.GetRolesAsync(user);
 			var userClaims = await _userManager.GetClaimsAsync(user);
 
-			var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
+            var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
 
-			var claims = new List<Claim>
-			{
-				new Claim(ClaimTypes.PrimarySid, user.Id),
-				new Claim(ClaimTypes.Email, user.Email!),
-				new Claim(ClaimTypes.MobilePhone,user.PhoneNumber!),
-				new Claim(ClaimTypes.Name, user.FullName)
-			}
-			.Union(userClaims)
-			.Union(roleClaims);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.PrimarySid, user.Id),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.MobilePhone,user.PhoneNumber!),
+                new Claim(ClaimTypes.Name, user.FullName)
+            }
+            .Union(userClaims)
+            .Union(roleClaims);
 
 
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
 
-			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
 			var token = new JwtSecurityToken(
 				issuer: _jwtSettings.Issuer,
