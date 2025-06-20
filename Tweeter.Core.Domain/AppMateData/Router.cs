@@ -58,8 +58,10 @@
             public const string GetNotifications = prefix + "/GetNotifications";
             public const string GetCountOfUnreadable = prefix + "/GetCount-Of-Unreadable-Notifications";
             public const string MarkAsRead = prefix + "/MarkAsRead";
+            public const string MarkAllAsRead = prefix + "/MarkAllAsRead";
             public const string DeleteNotification = prefix + "/DeleteNotification";
         }
+
 
 
 
