@@ -40,6 +40,7 @@ namespace Tweeter.APIs
                 app.UseSwaggerUI();
             }
             app.MapHub<ChatHub>("/hubs/chat");
+            app.MapHub<NotificationHub>("/hubs/notification");
             app.UseHttpsRedirection();
 
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");

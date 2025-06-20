@@ -1,4 +1,5 @@
-﻿using Tweeter.Shared.Results;
+﻿using Tweeter.Core.Application.Abstraction.Dtos.Following;
+using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Abstraction.Services.Following
 {
@@ -10,8 +11,12 @@ namespace Tweeter.Core.Application.Abstraction.Services.Following
 
 
         Task<Result<bool>> UnfollowUserAsync(string followerId, string followeeId);
-        //Task<IEnumerable<FollwersToReturn>> GetFollowersAsync(string userId);
-        //Task<List<string>> GetFollowingAsync(string userId);
+
+        Task<Result<List<UsersToReturn>>> GetFollowersAsync(string userId);
+        Task<Result<List<UsersToReturn>>> GetFollowingAsync(string userId);
+
+
+
         Task<Result<int>> GetFollowerCountAsync(string userId);
         Task<Result<int>> GetFollowingCountAsync(string userId);
         Task<Result<bool>> IsFollowingAsync(string followerId, string followeeId);
