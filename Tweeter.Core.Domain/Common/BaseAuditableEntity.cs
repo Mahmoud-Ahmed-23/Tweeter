@@ -13,6 +13,7 @@ namespace Tweeter.Core.Domain.Common
 
         public DateTime LastModifiedOn { get; set; }
 
+        public DateTime? JoinDate { get; set; }
 
     }
 }

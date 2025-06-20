@@ -17,6 +17,7 @@ using Tweeter.Core.Application.Mapping;
 using Tweeter.Core.Application.Services.Chats;
 using Tweeter.Core.Application.Services.Emails;
 using Tweeter.Core.Application.Services.Following;
+using Tweeter.Core.Application.Services.Emails;
 using Tweeter.Core.Application.Services.Identity.Account;
 using Tweeter.Core.Application.Services.Identity.Authentication;
 using Tweeter.Core.Application.Services.Notifications;

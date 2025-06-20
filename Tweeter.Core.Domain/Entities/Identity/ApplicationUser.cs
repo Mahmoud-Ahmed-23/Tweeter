@@ -10,8 +10,6 @@ namespace Tweeter.Core.Domain.Entities.Identity
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public int? ResetCode { get; set; }
-        public DateTime? ResetCodeExpiry { get; set; }
 
 
         public virtual ICollection<Tweet> Tweets { get; set; }
@@ -24,5 +22,10 @@ namespace Tweeter.Core.Domain.Entities.Identity
         public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Message> SentMessages { get; set; }
         public virtual ICollection<Message> ReceivedMessages { get; set; }
-    }
+    
+		public int? ResetCode { get; set; }
+		public DateTime? ResetCodeExpiry { get; set; }
+
+		public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+	}
 }

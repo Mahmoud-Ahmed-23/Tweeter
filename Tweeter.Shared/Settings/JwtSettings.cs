@@ -12,5 +12,6 @@ namespace Tweeter.Shared.Settings
 		public string Audience { get; set; }
 		public string Issuer { get; set; }
 		public double DurationInDays { get; set; }
+		public double JWTRefreshTokenExpire { get; set; }
 	}
 }

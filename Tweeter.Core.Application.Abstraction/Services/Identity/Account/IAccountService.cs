@@ -7,8 +7,9 @@ namespace Tweeter.Core.Application.Abstraction.Services.Identity.Account
     public interface IAccountService
     {
         Task<Result<ReturnUserDto>> Register(RegisterDto registerDto);
+        Task<Result<ReturnUserDto>> EditUser(EditUserDto editUserDto);
 
-        Task<Result<SuccessDto>> SendCodeByEmailAsync(ForgetPasswordByEmailDto emailDto);
+		Task<Result<SuccessDto>> SendCodeByEmailAsync(ForgetPasswordByEmailDto emailDto);
         Task<Result<SuccessDto>> VerifyCodeByEmailAsync(ResetCodeConfirmationByEmailDto resetCodeDto);
     }
 }

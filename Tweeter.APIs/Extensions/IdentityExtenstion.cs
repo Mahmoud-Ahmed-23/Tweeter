@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
 using Tweeter.Core.Domain.Entities.Identity;
 using Tweeter.Infrastructure.Persistence._Data;
 
@@ -53,19 +54,53 @@ namespace Tweeter.APIs.Extensions
                     ValidIssuer = configuration["JwtSettings:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]!))
                 };
-                configurationOptions.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["token"];
-                        if (!string.IsNullOrEmpty(accessToken))
-                        {
-                            context.Token = accessToken;
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+				configurationOptions.Events = new JwtBearerEvents
+				{
+					OnMessageReceived = context =>
+					{
+						var accessToken = context.Request.Query["token"];
+						if (!string.IsNullOrEmpty(accessToken))
+						{
+							context.Token = accessToken;
+						}
+						return Task.CompletedTask;
+					},
+
+					OnChallenge = context =>
+					{
+						// ❗ مهم علشان تمنع الـ Default Response
+						context.HandleResponse();
+
+						context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+						context.Response.ContentType = "application/json";
+
+						var result = JsonSerializer.Serialize(new Tweeter.Core.Application.Bases.Response<string>
+						{
+							Succeeded = false,
+							Message = "Unauthorized - Invalid or expired token",
+							StatusCode = System.Net.HttpStatusCode.Unauthorized
+						});
+
+						return context.Response.WriteAsync(result);
+					},
+
+					OnAuthenticationFailed = context =>
+					{
+						context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+						context.Response.ContentType = "application/json";
+
+						var result = JsonSerializer.Serialize(new Tweeter.Core.Application.Bases.Response<string>
+						{
+							Succeeded = false,
+							Message = "Authentication failed: " + context.Exception?.Message,
+							StatusCode = System.Net.HttpStatusCode.Unauthorized
+						});
+
+						return context.Response.WriteAsync(result);
+					}
+				};
+
+			});
 
             services.AddSwaggerGen(c =>
             {

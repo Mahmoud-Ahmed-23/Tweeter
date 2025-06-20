@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
+using Tweeter.Core.Application.Abstraction.Dtos.Identity.RefreshToken;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.ReturnedDto;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
 using Tweeter.Core.Application.Bases;
@@ -12,8 +13,11 @@ namespace Tweeter.Core.Application.Features.Identity.Authentication.Command.Hand
         IRequestHandler<LoginCommand, Response<ReturnUserDto>>,
         IRequestHandler<ResetPasswordCommand, Response<ReturnUserDto>>,
         IRequestHandler<ChangePasswordCommand, Response<ChangePasswordToReturn>>,
-        IRequestHandler<LougOutCommand, Response<SuccessDto>>
-    {
+        IRequestHandler<LougOutCommand, Response<SuccessDto>>,
+		IRequestHandler<RefreshTokenCommand, Response<ReturnUserDto>>,
+		IRequestHandler<RevokeRefreshTokenCommand, Response<bool>>
+
+	{
         private readonly IAuthenticationService _authenticationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -54,5 +58,25 @@ namespace Tweeter.Core.Application.Features.Identity.Authentication.Command.Hand
             return await HandleResultAsync(Task.FromResult(result));
 
         }
-    }
+
+		public async Task<Response<ReturnUserDto>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+		{
+			var result = await _authenticationService.GetRefreshToken(new RefreshDto
+			{
+				RefreshToken = request.RefreshToken,
+				Token = request.Token
+			}, cancellationToken);
+			return await HandleResultAsync(Task.FromResult(result));
+		}
+
+		public async Task<Response<bool>> Handle(RevokeRefreshTokenCommand request, CancellationToken cancellationToken)
+		{
+			var result = await _authenticationService.RevokeRefreshToken(new RefreshDto
+			{
+				RefreshToken = request.RefreshToken,
+				Token = request.Token
+			}, cancellationToken);
+			return await HandleResultAsync(Task.FromResult(result));
+		}
+	}
 }
