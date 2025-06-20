@@ -25,5 +25,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Notifications
             var result = await mediator.Send(new MarkAllAsReadCommand());
             return NewResult(result);
         }
+        [HttpPut(Router.NotificationRouting.MarkAsRead)]
+        public async Task<ActionResult<bool>> MarkAsRead([FromQuery] int notificationId)
+        {
+            var result = await mediator.Send(new MarkAsReadCommand() { NotificationId = notificationId });
+            return NewResult(result);
+        }
     }
 }

@@ -72,9 +72,21 @@ namespace Tweeter.Core.Application.Services.Notifications
 
         }
 
-        public Task<Result<bool>> MarkAsReadAsync(int notificationId)
+        public async Task<Result<bool>> MarkAsReadAsync(int notificationId)
         {
-            throw new NotImplementedException();
+            var notificationRepo = unitOfWork.GetRepository<Notification, int>();
+            var notification = await notificationRepo.GetAsync(notificationId);
+            if (notification == null)
+            {
+                return Result<bool>.Fail("Notification not found.");
+            }
+            notification.IsRead = true;
+            var compelete = await unitOfWork.CompleteAsync() > 0;
+            if (!compelete)
+            {
+                return Result<bool>.Fail("Failed to mark notification as read.");
+            }
+            return Result<bool>.Success(true);
         }
     }
 }

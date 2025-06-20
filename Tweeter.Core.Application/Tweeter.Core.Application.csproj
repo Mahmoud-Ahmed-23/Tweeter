@@ -28,7 +28,6 @@
     <Folder Include="Features\Identity\Authorization\Command\" />
     <Folder Include="Features\Identity\Authorization\Queries\" />
     <Folder Include="Features\Messages\Commands\" />
-    <Folder Include="Features\Notifications\Commands\Validators\" />
   </ItemGroup>
 
 </Project>
