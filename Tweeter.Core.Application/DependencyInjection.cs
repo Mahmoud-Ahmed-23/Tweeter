@@ -8,6 +8,7 @@ using Tweeter.Core.Application.Abstraction.Services.Emails;
 using Tweeter.Core.Application.Abstraction.Services.Following;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
+using Tweeter.Core.Application.Abstraction.Services.Notifications;
 using Tweeter.Core.Application.Bases;
 using Tweeter.Core.Application.Features.Behaviors;
 using Tweeter.Core.Application.Features.Identity.Account.Command.Validators;
@@ -18,6 +19,7 @@ using Tweeter.Core.Application.Services.Emails;
 using Tweeter.Core.Application.Services.Following;
 using Tweeter.Core.Application.Services.Identity.Account;
 using Tweeter.Core.Application.Services.Identity.Authentication;
+using Tweeter.Core.Application.Services.Notifications;
 using Tweeter.Shared.Settings;
 
 namespace Tweeter.Core.Application
@@ -42,6 +44,7 @@ namespace Tweeter.Core.Application
             #region Registration Services
             services.AddScoped<IBaseHandler, BaseHandler>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped(typeof(INotificationService), typeof(NotificationService));
 
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
 

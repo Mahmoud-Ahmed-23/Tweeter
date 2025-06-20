@@ -52,6 +52,15 @@
             public const string IsFollowing = prefix + "/IsFollowing";
         }
 
+        public static class NotificationRouting
+        {
+            public const string prefix = Rule + "Notification";
+            public const string GetNotifications = prefix + "/GetNotifications";
+            public const string GetCountOfUnreadable = prefix + "/GetCount-Of-Unreadable-Notifications";
+            public const string MarkAsRead = prefix + "/MarkAsRead";
+            public const string DeleteNotification = prefix + "/DeleteNotification";
+        }
+
 
 
     }
