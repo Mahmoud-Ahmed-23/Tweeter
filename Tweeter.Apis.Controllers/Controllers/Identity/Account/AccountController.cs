@@ -10,14 +10,14 @@ namespace Tweeter.Apis.Controllers.Controllers.Identity.Account
 	public class AccountController : BaseApiController
 	{
 		[HttpPost(Router.AccountRouting.Register)]
-		public async Task<ActionResult<ReturnUserDto>> Register([FromBody] RegisterDto registerDto)
+		public async Task<ActionResult<ReturnUserDto>> Register([FromForm] RegisterDto registerDto)
 		{
 			var result = await mediator.Send(new RegisterCommand() { RegisterDto = registerDto });
 			return NewResult(result);
 		}
 
 		[HttpPut(Router.AccountRouting.EditUser)]
-		public async Task<ActionResult<ReturnUserDto>> EditUser([FromBody] EditUserDto editUserDto)
+		public async Task<ActionResult<ReturnUserDto>> EditUser([FromForm] EditUserDto editUserDto)
 		{
 			var result = await mediator.Send(new EditUserCommand() { EditUserDto = editUserDto });
 			return NewResult(result);

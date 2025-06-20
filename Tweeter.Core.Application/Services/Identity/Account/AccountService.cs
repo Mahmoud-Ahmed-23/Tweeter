@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using Tweeter.Core.Application.Abstraction.Dtos._Common.Emails;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.ReturnedDto;
 using Tweeter.Core.Application.Abstraction.Services.Emails;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Account;
+using Tweeter.Core.Domain.Contracts.Infrastructure;
 using Tweeter.Core.Domain.Entities.Identity;
 using Tweeter.Shared.Results;
 
@@ -15,11 +17,15 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 	{
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly IEmailService _emailService;
+		private readonly IConfiguration _configuration;
+		private readonly IAttachmentService _attachmentService;
 
-		public AccountService(UserManager<ApplicationUser> userManager, IEmailService emailService)
+		public AccountService(UserManager<ApplicationUser> userManager, IEmailService emailService, IConfiguration configuration, IAttachmentService attachmentService)
 		{
 			_userManager = userManager;
 			_emailService = emailService;
+			_configuration = configuration;
+			_attachmentService = attachmentService;
 		}
 
 		public async Task<Result<SuccessDto>> SendCodeByEmailAsync(ForgetPasswordByEmailDto emailDto)
@@ -63,37 +69,54 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 		{
 			var isExist = await _userManager.FindByEmailAsync(registerDto.Email);
 
-            if (isExist is not null)
-            {
-                return Result<ReturnUserDto>.Fail("User already exists", ErrorType.NotFound);
-            }
+			if (isExist is not null)
+			{
+				return Result<ReturnUserDto>.Fail("User already exists", ErrorType.NotFound);
+			}
 
-            var user = new ApplicationUser
-            {
-                UserName = registerDto.Email,
-                Email = registerDto.Email,
-                PhoneNumber = registerDto.PhoneNumber,
-                FullName = registerDto.FullName,
-                ProfilePictureUrl = registerDto.ProfilePictureUrl,
-            };
+			var user = new ApplicationUser
+			{
+				UserName = registerDto.Email,
+				Email = registerDto.Email,
+				PhoneNumber = registerDto.PhoneNumber,
+				FullName = registerDto.FullName,
+			};
 
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
+			if (registerDto.ProfilePictureUrl is not null)
+			{
+				var uploadedImageUrl = await _attachmentService.UploadAsynce(registerDto.ProfilePictureUrl, "ProfilePictures");
 
-            if (!result.Succeeded)
-                return Result<ReturnUserDto>.Fail("Can't Create an Account :(", ErrorType.BadRequest);
+				if (uploadedImageUrl is not null)
+				{
+					user.ProfilePictureUrl = uploadedImageUrl;
+				}
+				else
+				{
+					user.ProfilePictureUrl = null;
+				}
+			}
+
+			var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+			if (!result.Succeeded)
+				return Result<ReturnUserDto>.Fail("Can't Create an Account :(", ErrorType.BadRequest);
 
 
-            await _userManager.AddToRoleAsync(user, registerDto.Role);
+			await _userManager.AddToRoleAsync(user, registerDto.Role);
 
-            return Result<ReturnUserDto>.Success(new ReturnUserDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber,
-                ProfilePictureUrl = user.ProfilePictureUrl,
-                Role = registerDto.Role
-            });
+			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
+									? string.Empty
+									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+
+			return Result<ReturnUserDto>.Success(new ReturnUserDto
+			{
+				Id = user.Id,
+				Email = user.Email,
+				FullName = user.FullName,
+				PhoneNumber = user.PhoneNumber,
+				ProfilePictureUrl = profilePictureUrl,
+				Role = registerDto.Role
+			});
 
 		}
 
@@ -174,14 +197,20 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 			user.UserName = editUserDto.Email;
 			user.PhoneNumber = editUserDto.PhoneNumber;
 			user.FullName = editUserDto.FullName;
-			user.ProfilePictureUrl = editUserDto.ProfilePictureUrl;
 
-
+			if (editUserDto.ProfilePictureUrl is not null)
+			{
+				user.ProfilePictureUrl = await _attachmentService.UploadAsynce(editUserDto.ProfilePictureUrl, "ProfilePictures");
+			}
 
 			var result = await _userManager.UpdateAsync(user);
 
 			if (!result.Succeeded)
 				return Result<ReturnUserDto>.Fail("Can't Update User", ErrorType.BadRequest);
+
+			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
+									? string.Empty
+									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
 
 			var returnUserDto = new ReturnUserDto
 			{
@@ -189,7 +218,7 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 				Email = user.Email,
 				FullName = user.FullName,
 				PhoneNumber = user.PhoneNumber,
-				ProfilePictureUrl = user.ProfilePictureUrl
+				ProfilePictureUrl = profilePictureUrl
 			};
 
 			return Result<ReturnUserDto>.Success(returnUserDto);

@@ -11,4 +11,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tweeter.Core.Domain\Tweeter.Core.Domain.csproj" />
+    <ProjectReference Include="..\Tweeter.Shared\Tweeter.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
