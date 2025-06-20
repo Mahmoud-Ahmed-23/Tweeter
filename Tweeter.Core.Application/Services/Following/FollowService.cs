@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Tweeter.Core.Application.Abstraction.Dtos.Following;
 using Tweeter.Core.Application.Abstraction.Services.Following;
+using Tweeter.Core.Application.Services.Hubs;
+using Tweeter.Core.Domain.Contracts.Common;
 using Tweeter.Core.Domain.Contracts.Persistence;
 using Tweeter.Core.Domain.Entities.Data;
 using Tweeter.Core.Domain.Entities.Identity;
@@ -10,7 +13,10 @@ using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Services.Following
 {
-    public class FollowService(IUnitOfWork _unitOfWork, IMapper _mapper, UserManager<ApplicationUser> userManager) : IFollowService
+    public class FollowService(IUnitOfWork _unitOfWork
+        , IMapper _mapper,
+        UserManager<ApplicationUser> userManager,
+        IHubContext<NotificationHub> hubContext) : IFollowService
     {
         public async Task<Result<bool>> FollowUserAsync(string followerId, string followeeId)
         {
@@ -46,6 +52,35 @@ namespace Tweeter.Core.Application.Services.Following
             {
                 return Result<bool>.Fail("Failed to follow user", ErrorType.Unexpected);
             }
+
+
+            // notificate
+            // You can implement notification logic here if needed
+            var notification = new Notification()
+            {
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false,
+                UserId = followeeId, // The user being followed
+                TriggerUserId = followerId, // The user who is following
+                NotificationType = NotificationType.Follow,
+                TweetId = null // Assuming no tweet is associated with this follow action
+
+            };
+            await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+            // Save the notification to the database
+            var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+            if (!notificationCompleted)
+            {
+                return Result<bool>.Fail("Failed to create notification", ErrorType.Unexpected);
+            }
+            // Send notification to the followee using SignalR
+
+            var Follower = await userManager.FindByIdAsync(followerId);
+
+            await hubContext.Clients.User(followeeId).SendAsync("ReceiveNotification", $"{Follower!.FullName} started following you.");
+
+
+
 
             return Result<bool>.Success(true);
         }
