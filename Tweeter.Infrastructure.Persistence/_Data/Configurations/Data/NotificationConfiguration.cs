@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tweeter.Core.Domain.Contracts.Common;
 using Tweeter.Core.Domain.Entities.Data;
 using Tweeter.Infrastructure.Persistence._Data.Configurations.Base;
 
@@ -13,6 +14,11 @@ namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
             builder.Property(n => n.NotificationType).IsRequired();
             builder.Property(n => n.IsRead).HasDefaultValue(false);
             builder.Property(n => n.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+            builder.Property(n => n.NotificationType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (NotificationType)Enum.Parse(typeof(NotificationType), v));
 
             // Relationships
             builder.HasOne(n => n.Tweet)
