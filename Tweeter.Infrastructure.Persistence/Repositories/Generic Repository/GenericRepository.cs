@@ -57,6 +57,10 @@ namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
         {
             _dbContext.Set<TEntity>().Remove(entity);
         }
+        public void DeleteRange(IEnumerable<TEntity> entities)
+        {
+            _dbContext.Set<TEntity>().RemoveRange(entities);
+        }
 
 
         public void Update(TEntity entity)

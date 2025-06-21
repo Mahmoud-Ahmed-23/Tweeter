@@ -4,12 +4,17 @@ using System.Security.Claims;
 using Tweeter.Core.Application.Abstraction.Services.Notifications;
 using Tweeter.Core.Application.Bases;
 using Tweeter.Core.Application.Features.Notifications.Commands.Models;
+using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Features.Notifications.Commands.Handlers
 {
     public class NotificationCommandHandlers : BaseHandler,
         IRequestHandler<MarkAllAsReadCommand, Response<bool>>,
-        IRequestHandler<MarkAsReadCommand, Response<bool>>
+        IRequestHandler<MarkAsReadCommand, Response<bool>>,
+        IRequestHandler<DeleteSpecififNotificationQuery, Response<bool>>,
+        IRequestHandler<DeleteAllNotificationForSpecificUserQuery, Response<bool>>
+
+
     {
         private readonly INotificationService _notificationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -35,6 +40,23 @@ namespace Tweeter.Core.Application.Features.Notifications.Commands.Handlers
         {
 
             var result = await _notificationService.MarkAsReadAsync(request.NotificationId);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<bool>> Handle(DeleteSpecififNotificationQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _notificationService.DeleteNotificationAsync(request.NotificationId);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<bool>> Handle(DeleteAllNotificationForSpecificUserQuery request, CancellationToken cancellationToken)
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Fail<bool>("User ID cannot be null or empty.", ErrorType.Unauthorized);
+            }
+            var result = await _notificationService.DeleteAllNotificationsForSpecificUserAsync(userId);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }
