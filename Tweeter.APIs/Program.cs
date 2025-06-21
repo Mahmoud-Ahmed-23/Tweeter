@@ -4,6 +4,7 @@ using Tweeter.Core.Application;
 using Tweeter.Core.Application.Services.Hubs;
 using Tweeter.Infrastructure.Persistence;
 using Tweeter.Infrastructure;
+using Tweeter.Core.Application.Abstraction.Services.Tweets;
 namespace Tweeter.APIs
 {
     public class Program
@@ -42,6 +43,7 @@ namespace Tweeter.APIs
             }
             app.MapHub<ChatHub>("/hubs/chat");
             app.MapHub<NotificationHub>("/hubs/notification");
+            app.MapHub<TweetHub>("/hubs/Tweet");
             app.UseHttpsRedirection();
 
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");
