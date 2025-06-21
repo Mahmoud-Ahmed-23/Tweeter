@@ -37,5 +37,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Notifications
             var result = await mediator.Send(new DeleteSpecififNotificationQuery() { NotificationId = notificationId });
             return NewResult(result);
         }
+        [HttpDelete(Router.NotificationRouting.DeleteAllNotificationForSpecificUser)]
+        public async Task<ActionResult<bool>> DeleteAllNotificationForSpecificUser()
+        {
+            var result = await mediator.Send(new DeleteAllNotificationForSpecificUserQuery());
+            return NewResult(result);
+        }
     }
 }

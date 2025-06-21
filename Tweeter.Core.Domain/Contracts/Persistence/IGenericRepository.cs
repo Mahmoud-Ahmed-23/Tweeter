@@ -11,6 +11,8 @@ namespace Tweeter.Core.Domain.Contracts.Persistence
         Task<TEntity?> GetAsync(TKey id);
 
 
+
+
         IQueryable<TEntity> GetQueryable();
 
         Task<IEnumerable<TEntity>> GetAllWithSpecAsync(ISpecification<TEntity, TKey> Spec, bool WithTraching = false);
@@ -24,6 +26,7 @@ namespace Tweeter.Core.Domain.Contracts.Persistence
         void Update(TEntity entity);
 
         void Delete(TEntity entity);
+        void DeleteRange(IEnumerable<TEntity> entities);
 
     }
 }

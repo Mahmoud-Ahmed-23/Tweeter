@@ -35,9 +35,36 @@ namespace Tweeter.Core.Application.Services.Notifications
 
         }
 
-        public Task<Result<bool>> DeleteAllNotificationsForSpecificUserAsync(string userId)
+        public async Task<Result<bool>> DeleteAllNotificationsForSpecificUserAsync(string userId)
         {
-            throw new NotImplementedException();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Result<bool>.Fail("User ID cannot be null or empty.");
+            }
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result<bool>.Fail("User not found.");
+            }
+            var notificationRepo = unitOfWork.GetRepository<Notification, int>();
+            var notifications = notificationRepo.GetQueryable()
+                .Where(n => n.UserId == userId);
+
+            if (notifications is null || !notifications.Any())
+            {
+                return Result<bool>.Fail("No notifications found for the user.", ErrorType.NotFound);
+            }
+
+            notificationRepo.DeleteRange(notifications);
+
+            var compelete = await unitOfWork.CompleteAsync() > 0;
+            if (!compelete)
+            {
+                return Result<bool>.Fail("Failed to delete notifications.", ErrorType.BadRequest);
+            }
+            return Result<bool>.Success(true);
+
         }
 
         public async Task<Result<bool>> DeleteNotificationAsync(int notificationId)
