@@ -71,7 +71,7 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 
 			if (isExist is not null)
 			{
-				return Result<ReturnUserDto>.Fail("User already exists", ErrorType.NotFound);
+				return Result<ReturnUserDto>.Fail("User already exists", ErrorType.BadRequest);
 			}
 
 			var user = new ApplicationUser
@@ -107,6 +107,8 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
 									? string.Empty
 									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+
+			await SendCodeByEmailAsync(new ForgetPasswordByEmailDto(registerDto.Email));
 
 			return Result<ReturnUserDto>.Success(new ReturnUserDto
 			{
