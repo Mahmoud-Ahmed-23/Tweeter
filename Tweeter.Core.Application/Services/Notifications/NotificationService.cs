@@ -40,9 +40,21 @@ namespace Tweeter.Core.Application.Services.Notifications
             throw new NotImplementedException();
         }
 
-        public Task<Result<bool>> DeleteNotificationAsync(int notificationId)
+        public async Task<Result<bool>> DeleteNotificationAsync(int notificationId)
         {
-            throw new NotImplementedException();
+            var notificationRepo = unitOfWork.GetRepository<Notification, int>();
+            var notification = await notificationRepo.GetAsync(notificationId);
+            if (notification is null)
+            {
+                return Result<bool>.Fail("Notification not found.", ErrorType.NotFound);
+            }
+            notificationRepo.Delete(notification);
+            var compelete = await unitOfWork.CompleteAsync() > 0;
+            if (!compelete)
+            {
+                return Result<bool>.Fail("Failed to delete notification.", ErrorType.BadRequest);
+            }
+            return Result<bool>.Success(true);
         }
 
         public async Task<Result<bool>> MarkAllAsReadAsync(string userId)

@@ -9,7 +9,8 @@ namespace Tweeter.Core.Application.Features.Notifications.Commands.Handlers
 {
     public class NotificationCommandHandlers : BaseHandler,
         IRequestHandler<MarkAllAsReadCommand, Response<bool>>,
-        IRequestHandler<MarkAsReadCommand, Response<bool>>
+        IRequestHandler<MarkAsReadCommand, Response<bool>>,
+        IRequestHandler<DeleteSpecififNotificationQuery, Response<bool>>
     {
         private readonly INotificationService _notificationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -35,6 +36,12 @@ namespace Tweeter.Core.Application.Features.Notifications.Commands.Handlers
         {
 
             var result = await _notificationService.MarkAsReadAsync(request.NotificationId);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<bool>> Handle(DeleteSpecififNotificationQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _notificationService.DeleteNotificationAsync(request.NotificationId);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }
