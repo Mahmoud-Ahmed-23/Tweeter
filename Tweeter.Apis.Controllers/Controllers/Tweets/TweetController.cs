@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tweeter.Apis.Controllers.Controllers.Base;
+using Tweeter.Core.Application.Abstraction.Common;
 using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
 using Tweeter.Core.Application.Features.Messages.Queries.Models;
 using Tweeter.Core.Application.Features.Tweets.Commands.Models;
@@ -26,9 +27,17 @@ namespace Tweeter.Apis.Controllers.Controllers.Tweets
 
 		[Authorize]
 		[HttpGet(Router.TweetRouting.GetTweetsToSpecificUser)]
-		public async Task<ActionResult<List<TweetToReturnDto>>> GetTweetsToSpecificUser([FromQuery] string userId)
+		public async Task<ActionResult<List<TweetToReturnDto>>> GetTweetsToSpecificUser([FromQuery] SpecParams specParams)
 		{
-			var result = await mediator.Send(new GetTweetsToSpecificUserQuery(userId));
+			var result = await mediator.Send(new GetTweetsToSpecificUserQuery(specParams));
+			return NewResult(result);
+		}
+
+		[Authorize]
+		[HttpGet(Router.TweetRouting.GetTweetById)]
+		public async Task<ActionResult<TweetToReturnDto>> GetTweetById([FromRoute] int id)
+		{
+			var result = await mediator.Send(new GetTweetByIdQuery(id));
 			return NewResult(result);
 		}
 	}

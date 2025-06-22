@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tweeter.Core.Application.Abstraction.Common;
 using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
 using Tweeter.Shared.Results;
 
@@ -12,9 +13,9 @@ namespace Tweeter.Core.Application.Abstraction.Services.Tweets
 	{
 		Task<Result<TweetToReturnDto>> CreateTweetAsync(CreateTweetDto tweetDto);
 
-		Task<TweetToReturnDto> GetTweetByIdAsync(string tweetId);
+		Task<Result<TweetToReturnDto>> GetTweetByIdAsync(int tweetId);
 
-		Task<Result<List<TweetToReturnDto>>> GetTweetsByUserIdAsync(string userId);
+		Task<Result<Pagination<TweetToReturnDto>>> GetTweetsByUserIdAsync(string userId, SpecParams specParams);
 
 	}
 }
