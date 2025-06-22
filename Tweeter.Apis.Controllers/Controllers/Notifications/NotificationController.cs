@@ -51,5 +51,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Notifications
             var result = await mediator.Send(new GetNotificationForUserQuery(specParams));
             return NewResult<Pagination<NotificationDto>>(result);
         }
+        [HttpGet(Router.NotificationRouting.GetUnreadNotifications)]
+        public async Task<ActionResult<Pagination<NotificationDto>>> GetUnreadNotifications([FromQuery] SpecParams specParams)
+        {
+            var result = await mediator.Send(new GetUnreadableNotificationsQuery(specParams));
+            return NewResult<Pagination<NotificationDto>>(result);
+        }
     }
 }

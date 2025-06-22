@@ -6,12 +6,14 @@ using Tweeter.Core.Application.Abstraction.Dtos.Notifications;
 using Tweeter.Core.Application.Abstraction.Services.Notifications;
 using Tweeter.Core.Application.Bases;
 using Tweeter.Core.Application.Features.Notifications.Queries.Models;
+using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Features.Notifications.Queries.Handlers
 {
     public class NotificationQueryHandler : BaseHandler,
         IRequestHandler<GetCountOfUnreadableNotificationsQuery, Response<int>>,
-        IRequestHandler<GetNotificationForUserQuery, Response<Pagination<NotificationDto>>>
+        IRequestHandler<GetNotificationForUserQuery, Response<Pagination<NotificationDto>>>,
+        IRequestHandler<GetUnreadableNotificationsQuery, Response<Pagination<NotificationDto>>>
 
     {
         private readonly INotificationService _notificationService;
@@ -45,6 +47,17 @@ namespace Tweeter.Core.Application.Features.Notifications.Queries.Handlers
                 return Fail<Pagination<NotificationDto>>("User ID cannot be null or empty.");
             }
             var result = await _notificationService.GetNotificationsAsync(userId, request.SpecParams);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<Pagination<NotificationDto>>> Handle(GetUnreadableNotificationsQuery request, CancellationToken cancellationToken)
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Fail<Pagination<NotificationDto>>("User ID cannot be null or empty.", ErrorType.Unauthorized);
+            }
+            var result = await _notificationService.GetUnreadNotificationsAsync(userId, request.SpecParams);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }

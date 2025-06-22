@@ -18,6 +18,7 @@ namespace Tweeter.Core.Application.Services.Notifications
 
         public async Task<Result<Pagination<NotificationDto>>> GetNotificationsAsync(string userId, SpecParams specParams)
         {
+
             var spec = new NotificationsForUserSpec(userId, specParams.Sort, specParams.PageIndex, specParams.PageSize);
 
             var notificationRepo = unitOfWork.GetRepository<Notification, int>();
@@ -35,6 +36,25 @@ namespace Tweeter.Core.Application.Services.Notifications
 
 
             return Result<Pagination<NotificationDto>>.Success(new Pagination<NotificationDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+
+        }
+
+        public async Task<Result<Pagination<NotificationDto>>> GetUnreadNotificationsAsync(string userId, SpecParams specParams)
+        {
+
+            var spec = new UnreadNotificationsForUserSpec(userId, specParams.Sort, specParams.PageIndex, specParams.PageSize);
+            var notificationRepo = unitOfWork.GetRepository<Notification, int>();
+            var notifications = await notificationRepo.GetAllWithSpecAsync(spec);
+            if (notifications is null || !notifications.Any())
+            {
+                return Result<Pagination<NotificationDto>>.Fail("No unread notifications found for the user.", ErrorType.NotFound);
+            }
+            var countspec = new UnreadNotificationsForUserCountSpec(userId);
+            var totalCount = await notificationRepo.GetCountAsync(countspec);
+            var data = mapper.Map<IEnumerable<NotificationDto>>(notifications);
+            return Result<Pagination<NotificationDto>>.Success(new Pagination<NotificationDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+
+
 
         }
 
@@ -157,5 +177,7 @@ namespace Tweeter.Core.Application.Services.Notifications
             }
             return Result<bool>.Success(true);
         }
+
+
     }
 }

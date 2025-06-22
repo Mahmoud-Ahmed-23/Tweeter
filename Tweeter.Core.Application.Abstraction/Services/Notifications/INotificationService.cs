@@ -7,7 +7,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Notifications
     public interface INotificationService
     {
         Task<Result<Pagination<NotificationDto>>> GetNotificationsAsync(string userId, SpecParams specParams);
-        //Task<Result<IEnumerable<NotificationDto>>> GetUnreadNotificationsAsync(string userId);
+        Task<Result<Pagination<NotificationDto>>> GetUnreadNotificationsAsync(string userId, SpecParams specParams);
         Task<Result<bool>> MarkAsReadAsync(int notificationId);
         Task<Result<bool>> MarkAllAsReadAsync(string userId);
         Task<Result<bool>> DeleteNotificationAsync(int notificationId);
