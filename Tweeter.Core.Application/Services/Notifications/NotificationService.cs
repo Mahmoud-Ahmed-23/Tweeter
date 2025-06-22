@@ -1,15 +1,43 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Tweeter.Core.Application.Abstraction.Common;
+using Tweeter.Core.Application.Abstraction.Dtos.Notifications;
 using Tweeter.Core.Application.Abstraction.Services.Notifications;
 using Tweeter.Core.Domain.Contracts.Persistence;
 using Tweeter.Core.Domain.Entities.Data;
 using Tweeter.Core.Domain.Entities.Identity;
+using Tweeter.Core.Domain.Specifications.Notifications;
 using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Services.Notifications
 {
     public class NotificationService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager) : INotificationService
     {
+
+
+
+        public async Task<Result<Pagination<NotificationDto>>> GetNotificationsAsync(string userId, SpecParams specParams)
+        {
+            var spec = new NotificationsForUserSpec(userId, specParams.Sort, specParams.PageIndex, specParams.PageSize);
+
+            var notificationRepo = unitOfWork.GetRepository<Notification, int>();
+            var notifications = await notificationRepo.GetAllWithSpecAsync(spec);
+            if (notifications is null || !notifications.Any())
+            {
+                return Result<Pagination<NotificationDto>>.Fail("No notifications found for the user.", ErrorType.NotFound);
+            }
+
+            var countspec = new NotificationsForUserCountSpec(userId);
+
+            var totalCount = await notificationRepo.GetCountAsync(countspec);
+
+            var data = mapper.Map<IEnumerable<NotificationDto>>(notifications);
+
+
+            return Result<Pagination<NotificationDto>>.Success(new Pagination<NotificationDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+
+        }
+
         public async Task<Result<int>> CountOfUnReadNotificationAsync(string userid)
         {
 
@@ -83,6 +111,8 @@ namespace Tweeter.Core.Application.Services.Notifications
             }
             return Result<bool>.Success(true);
         }
+
+
 
         public async Task<Result<bool>> MarkAllAsReadAsync(string userId)
         {

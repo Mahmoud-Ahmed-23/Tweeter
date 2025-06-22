@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tweeter.Apis.Controllers.Controllers.Base;
+using Tweeter.Core.Application.Abstraction.Common;
+using Tweeter.Core.Application.Abstraction.Dtos.Notifications;
 using Tweeter.Core.Application.Features.Notifications.Commands.Models;
 using Tweeter.Core.Application.Features.Notifications.Queries.Models;
 using Tweeter.Core.Domain.AppMateData;
@@ -42,6 +44,12 @@ namespace Tweeter.Apis.Controllers.Controllers.Notifications
         {
             var result = await mediator.Send(new DeleteAllNotificationForSpecificUserQuery());
             return NewResult(result);
+        }
+        [HttpGet(Router.NotificationRouting.GetNotifications)]
+        public async Task<ActionResult<Pagination<NotificationDto>>> GetNotifications([FromQuery] SpecParams specParams)
+        {
+            var result = await mediator.Send(new GetNotificationForUserQuery(specParams));
+            return NewResult<Pagination<NotificationDto>>(result);
         }
     }
 }
