@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tweeter.Core.Application.Abstraction.Common;
 using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
 using Tweeter.Core.Application.Bases;
 
 namespace Tweeter.Core.Application.Features.Tweets.Queries.Models
 {
-	public class GetTweetsToSpecificUserQuery : IRequest<Response<Pagination<TweetToReturnDto>>>
+	public class GetTweetByIdQuery : IRequest<Response<TweetToReturnDto>>
 	{
-		public SpecParams SpecParams { get; set; }
-		public GetTweetsToSpecificUserQuery(SpecParams specParams)
+		public int TweetId { get; set; }
+
+		public GetTweetByIdQuery(int tweetId)
 		{
-			SpecParams = specParams;
+			TweetId = tweetId;
 		}
 	}
 }
