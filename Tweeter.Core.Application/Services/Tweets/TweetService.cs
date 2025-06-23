@@ -104,6 +104,57 @@ namespace Tweeter.Core.Application.Services.Tweets
 			return Result<string>.Success("Tweet deleted successfully.");
 		}
 
+		public async Task<Result<Pagination<TweetToReturnDto>>> GetAllTweetsAsync(SpecParams specParams)
+		{
+			var specs = new TweetsForAllSpec(specParams.PageIndex, specParams.PageSize);
+			
+			var repo = _unitOfWork.GetRepository<Tweet, int>();
+			
+			var tweets = await repo.GetAllWithSpecAsync(specs);
+			
+			if (tweets is null || !tweets.Any())
+			{
+				return Result<Pagination<TweetToReturnDto>>.Fail("No tweets found.", ErrorType.NotFound);
+			}
+			
+			var countSpec = new TweetsForAllCountSpec();
+			
+			var totalCount = await repo.GetCountAsync(countSpec);
+			
+			var data = _mapper.Map<List<TweetToReturnDto>>(tweets);
+			
+			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+		}
+
+		public async Task<Result<Pagination<TweetToReturnDto>>> GetFollowedUsersTweetsAsync(SpecParams specParams)
+		{
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Result<Pagination<TweetToReturnDto>>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+
+			var specs = new TweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize);
+
+			var repo = _unitOfWork.GetRepository<Tweet, int>();
+
+			var tweets = await repo.GetAllWithSpecAsync(specs);
+
+			if (tweets is null || !tweets.Any())
+			{
+				return Result<Pagination<TweetToReturnDto>>.Fail("No tweets found for followed users.", ErrorType.NotFound);
+			}
+
+			var countSpec = new TweetsForFollowedUsersCountSpec(userId);
+
+			var totalCount = await repo.GetCountAsync(countSpec);
+
+			var data = _mapper.Map<List<TweetToReturnDto>>(tweets);
+			
+			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+		}
+
 		public async Task<Result<TweetToReturnDto>> GetTweetByIdAsync(int tweetId)
 		{
 			var repo = _unitOfWork.GetRepository<Tweet, int>();

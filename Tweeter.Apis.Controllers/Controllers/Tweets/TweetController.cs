@@ -17,7 +17,6 @@ namespace Tweeter.Apis.Controllers.Controllers.Tweets
 {
 	public class TweetController : BaseApiController
 	{
-		[Authorize]
 		[HttpGet(Router.TweetRouting.GetTweetsToSpecificUser)]
 		public async Task<ActionResult<List<TweetToReturnDto>>> GetTweetsToSpecificUser([FromQuery] SpecParams specParams)
 		{
@@ -25,7 +24,6 @@ namespace Tweeter.Apis.Controllers.Controllers.Tweets
 			return NewResult(result);
 		}
 
-		[Authorize]
 		[HttpGet(Router.TweetRouting.GetTweetById)]
 		public async Task<ActionResult<TweetToReturnDto>> GetTweetById([FromRoute] int id)
 		{
@@ -54,6 +52,21 @@ namespace Tweeter.Apis.Controllers.Controllers.Tweets
 		public async Task<ActionResult<string>> DeleteTweet([FromRoute] int id)
 		{
 			var result = await mediator.Send(new DeleteTweetCommand(id));
+			return NewResult(result);
+		}
+
+		[HttpGet(Router.TweetRouting.GetAllTweets)]
+		public async Task<ActionResult<Pagination<TweetToReturnDto>>> GetAllTweets([FromQuery] SpecParams specParams)
+		{
+			var result = await mediator.Send(new GetAllTweetsQuery(specParams));
+			return NewResult(result);
+		}
+
+		[Authorize]
+		[HttpGet(Router.TweetRouting.GetTweetsForFollowedUsers)]
+		public async Task<ActionResult<Pagination<TweetToReturnDto>>> GetTweetsForFollowedUsers([FromQuery] SpecParams specParams)
+		{
+			var result = await mediator.Send(new GetFollowedUsersTweetsQuery(specParams));
 			return NewResult(result);
 		}
 	}

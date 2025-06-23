@@ -71,7 +71,9 @@
 		{
 			public const string prefix = Rule + "Tweet";
 			public const string CreateTweet = prefix + "/CreateTweet";
+			public const string GetAllTweets = prefix + "/GetAllTweets";
 			public const string GetTweetsToSpecificUser = prefix + "/GetTweetsToSpecificUser";
+			public const string GetTweetsForFollowedUsers = prefix + "/GetTweetsForFollowedUsers";
 			public const string GetTweetById = prefix + "/{id}";
 			public const string UpdateTweet = prefix + "/Update/{id}";
 			public const string DeleteTweet = prefix + "/Delete/{id}";
