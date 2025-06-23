@@ -53,9 +53,10 @@ namespace Tweeter.APIs
 
             app.UseRouting();
 
+            app.UseCors("default");
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("default");
 
 
             app.MapControllers();

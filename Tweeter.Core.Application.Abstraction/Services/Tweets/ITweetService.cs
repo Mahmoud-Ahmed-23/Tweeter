@@ -15,6 +15,10 @@ namespace Tweeter.Core.Application.Abstraction.Services.Tweets
 
 		Task<Result<TweetToReturnDto>> GetTweetByIdAsync(int tweetId);
 
+		Task<Result<Pagination<TweetToReturnDto>>> GetAllTweetsAsync(SpecParams specParams);
+
+		Task<Result<Pagination<TweetToReturnDto>>> GetFollowedUsersTweetsAsync(SpecParams specParams);
+
 		Task<Result<Pagination<TweetToReturnDto>>> GetTweetsByUserIdAsync(string userId, SpecParams specParams);
 
 		Task<Result<TweetToReturnDto>> UpdateTweetAsync(int id, UpdateTweetDto tweetDto);

@@ -19,7 +19,9 @@ namespace Tweeter.Core.Application.Features.Tweets.Queries.Handlers
 	public class TweetsQueryHandlers :
 		BaseHandler,
 		IRequestHandler<GetTweetsToSpecificUserQuery, Response<Pagination<TweetToReturnDto>>>,
-		IRequestHandler<GetTweetByIdQuery, Response<TweetToReturnDto>>
+		IRequestHandler<GetTweetByIdQuery, Response<TweetToReturnDto>>,
+		IRequestHandler<GetAllTweetsQuery, Response<Pagination<TweetToReturnDto>>>,
+		IRequestHandler<GetFollowedUsersTweetsQuery, Response<Pagination<TweetToReturnDto>>>
 	{
 		private readonly ITweetService _tweetService;
 		private readonly IHttpContextAccessor _httpContextAccessor;
@@ -47,6 +49,18 @@ namespace Tweeter.Core.Application.Features.Tweets.Queries.Handlers
 		{
 			var result = await _tweetService.GetTweetByIdAsync(request.TweetId);
 
+			return await HandleResultAsync(Task.FromResult(result));
+		}
+
+		public async Task<Response<Pagination<TweetToReturnDto>>> Handle(GetAllTweetsQuery request, CancellationToken cancellationToken)
+		{
+			var result = await _tweetService.GetAllTweetsAsync(request.SpecParams);
+			return await HandleResultAsync(Task.FromResult(result));
+		}
+
+		public async Task<Response<Pagination<TweetToReturnDto>>> Handle(GetFollowedUsersTweetsQuery request, CancellationToken cancellationToken)
+		{
+			var result = await _tweetService.GetFollowedUsersTweetsAsync(request.SpecParams);
 			return await HandleResultAsync(Task.FromResult(result));
 		}
 	}
