@@ -73,6 +73,8 @@
 			public const string CreateTweet = prefix + "/CreateTweet";
 			public const string GetTweetsToSpecificUser = prefix + "/GetTweetsToSpecificUser";
 			public const string GetTweetById = prefix + "/{id}";
+			public const string UpdateTweet = prefix + "/Update/{id}";
+			public const string DeleteTweet = prefix + "/Delete/{id}";
 
 		}
 

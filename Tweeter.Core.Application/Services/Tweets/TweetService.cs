@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Tweeter.Core.Application.Abstraction.Common;
@@ -25,14 +27,16 @@ namespace Tweeter.Core.Application.Services.Tweets
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
 		private readonly IAttachmentService _attachmentService;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IConfiguration _configuration;
 
-		public TweetService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IAttachmentService attachmentService, IConfiguration configuration)
+		public TweetService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IAttachmentService attachmentService, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_attachmentService = attachmentService;
 			_configuration = configuration;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		public async Task<Result<TweetToReturnDto>> CreateTweetAsync(CreateTweetDto tweetDto)
@@ -68,6 +72,36 @@ namespace Tweeter.Core.Application.Services.Tweets
 			var tweetToReturn = _mapper.Map<TweetToReturnDto>(mappedTweet);
 
 			return Result<TweetToReturnDto>.Success(tweetToReturn);
+		}
+
+		public async Task<Result<string>> DeleteTweetAsync(int id)
+		{
+			var repo = _unitOfWork.GetRepository<Tweet, int>();
+
+			var tweet = await repo.GetAsync(id);
+
+			if (tweet is null)
+			{
+				return Result<string>.Fail("Tweet not found.", ErrorType.NotFound);
+			}
+
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+
+			if (string.IsNullOrEmpty(userId) || userId != tweet!.UserId)
+			{
+				return Result<string>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+
+			repo.Delete(tweet);
+
+			var completed = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!completed)
+			{
+				return Result<string>.Fail("Failed to delete tweet", ErrorType.Unexpected);
+			}
+
+			return Result<string>.Success("Tweet deleted successfully.");
 		}
 
 		public async Task<Result<TweetToReturnDto>> GetTweetByIdAsync(int tweetId)
@@ -107,5 +141,54 @@ namespace Tweeter.Core.Application.Services.Tweets
 
 			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
 		}
+
+		public async Task<Result<TweetToReturnDto>> UpdateTweetAsync(int id, UpdateTweetDto tweetDto)
+		{
+			var repo = _unitOfWork.GetRepository<Tweet, int>();
+
+			var tweet = await repo.GetAsync(id);
+
+			if (tweet is null)
+			{
+				return Result<TweetToReturnDto>.Fail("Tweet not found.", ErrorType.NotFound);
+			}
+
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+
+			if (string.IsNullOrEmpty(userId) || userId != tweet!.UserId)
+			{
+				return Result<TweetToReturnDto>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+
+			var mappedTweet = _mapper.Map(tweetDto, tweet);
+
+			if (tweetDto.ImageUrl is not null)
+			{
+				var uploadedImageUrl = await _attachmentService.UploadAsynce(tweetDto.ImageUrl, "TweetsPictures");
+
+				if (uploadedImageUrl is not null)
+				{
+					mappedTweet.ImageUrl = uploadedImageUrl;
+				}
+				else
+				{
+					mappedTweet.ImageUrl = null;
+				}
+			}
+
+			repo.Update(mappedTweet);
+
+			var completed = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!completed)
+			{
+				return Result<TweetToReturnDto>.Fail("Failed to update tweet", ErrorType.Unexpected);
+			}
+
+			var tweetToReturn = _mapper.Map<TweetToReturnDto>(mappedTweet);
+
+			return Result<TweetToReturnDto>.Success(tweetToReturn);
+		}
+
 	}
 }

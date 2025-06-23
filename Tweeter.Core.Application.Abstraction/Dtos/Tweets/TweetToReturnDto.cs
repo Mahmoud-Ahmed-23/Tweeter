@@ -8,6 +8,8 @@ namespace Tweeter.Core.Application.Abstraction.Dtos.Tweets
 {
 	public class TweetToReturnDto
 	{
+		public int Id { get; set; }
+
 		public string Content { get; set; }
 
 		public string? ImageUrl { get; set; }
