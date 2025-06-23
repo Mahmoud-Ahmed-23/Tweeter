@@ -18,14 +18,6 @@ namespace Tweeter.Apis.Controllers.Controllers.Tweets
 	public class TweetController : BaseApiController
 	{
 		[Authorize]
-		[HttpPost(Router.TweetRouting.CreateTweet)]
-		public async Task<ActionResult<TweetToReturnDto>> CreateTweet([FromForm] CreateTweetDto tweetDto)
-		{
-			var result = await mediator.Send(new CreateTweetCommand { TweetDto = tweetDto });
-			return NewResult(result);
-		}
-
-		[Authorize]
 		[HttpGet(Router.TweetRouting.GetTweetsToSpecificUser)]
 		public async Task<ActionResult<List<TweetToReturnDto>>> GetTweetsToSpecificUser([FromQuery] SpecParams specParams)
 		{
@@ -38,6 +30,30 @@ namespace Tweeter.Apis.Controllers.Controllers.Tweets
 		public async Task<ActionResult<TweetToReturnDto>> GetTweetById([FromRoute] int id)
 		{
 			var result = await mediator.Send(new GetTweetByIdQuery(id));
+			return NewResult(result);
+		}
+
+		[Authorize]
+		[HttpPost(Router.TweetRouting.CreateTweet)]
+		public async Task<ActionResult<TweetToReturnDto>> CreateTweet([FromForm] CreateTweetDto tweetDto)
+		{
+			var result = await mediator.Send(new CreateTweetCommand { TweetDto = tweetDto });
+			return NewResult(result);
+		}
+
+		[Authorize]
+		[HttpPut(Router.TweetRouting.UpdateTweet)]
+		public async Task<ActionResult<TweetToReturnDto>> UpdateTweet([FromRoute] int id, [FromForm] UpdateTweetDto tweetDto)
+		{
+			var result = await mediator.Send(new UpdateTweetCommand(id, tweetDto));
+			return NewResult(result);
+		}
+
+		[Authorize]
+		[HttpDelete(Router.TweetRouting.DeleteTweet)]
+		public async Task<ActionResult<string>> DeleteTweet([FromRoute] int id)
+		{
+			var result = await mediator.Send(new DeleteTweetCommand(id));
 			return NewResult(result);
 		}
 	}
