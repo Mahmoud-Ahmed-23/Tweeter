@@ -6,6 +6,8 @@ namespace Tweeter.Core.Domain.Entities.Data
     {
         public string TagName { get; set; }
 
+        public string NormalizedTagName { get; set; }
+
 
 
 
