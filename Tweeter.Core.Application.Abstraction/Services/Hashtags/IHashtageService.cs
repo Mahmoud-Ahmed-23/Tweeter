@@ -16,7 +16,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Hashtags
 
         Task<Result<HashtagToReturn>> GetByIdAsync(int id);
         Task<Result<bool>> DeleteAsync(int id);
-        //Task<Result<IEnumerable<HasHashtagToReturnhtag>>> GetTopFiveHashtagsAsync();
+        Task<Result<IEnumerable<HashtagToReturn>>> GetTopFiveHashtagsBasedOnCountOfTweetsAsync();
 
 
     }

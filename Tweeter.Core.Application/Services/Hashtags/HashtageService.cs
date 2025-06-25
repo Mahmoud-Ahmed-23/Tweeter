@@ -83,5 +83,22 @@ namespace Tweeter.Core.Application.Services.Hashtags
             }
             return Result<bool>.Success(result, 1);
         }
+
+        public async Task<Result<IEnumerable<HashtagToReturn>>> GetTopFiveHashtagsBasedOnCountOfTweetsAsync()
+        {
+            var hashtagrepo = unitOfWork.GetRepository<Hashtag, int>();
+            var entities = await hashtagrepo.GetAllAsync();
+            if (entities is null || !entities.Any())
+            {
+                return Result<IEnumerable<HashtagToReturn>>.Fail("No hashtags found", ErrorType.NotFound);
+            }
+            var sortedHashtags = entities.OrderByDescending(h => h.TweetHashtags.Count).Take(5);
+            var mappedData = mapper.Map<IEnumerable<HashtagToReturn>>(sortedHashtags);
+            foreach (var hashtag in mappedData)
+            {
+                hashtag.TweetCount = sortedHashtags.FirstOrDefault(h => h.Id == hashtag.Id)?.TweetHashtags.Count ?? 0;
+            }
+            return Result<IEnumerable<HashtagToReturn>>.Success(mappedData, mappedData.Count());
+        }
     }
 }

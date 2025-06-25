@@ -35,5 +35,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Hashtags
             var result = await mediator.Send(new DeleteHashtagCommand(id));
             return NewResult(result);
         }
+        [HttpGet(Router.HashtagRouting.GetTopFiveHashtages)]
+        public async Task<ActionResult<IEnumerable<HashtagToReturn>>> GetTopFiveHashtages()
+        {
+            var result = await mediator.Send(new GetTopFiveHashtagsBasedOnCountOfTweetsQuery());
+            return NewResult(result);
+        }
     }
 }
