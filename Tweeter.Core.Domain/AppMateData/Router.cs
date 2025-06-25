@@ -88,6 +88,7 @@
             public const string CreateHashtag = prefix + "/CreateHashtag";
             public const string DeleteHashtag = prefix + "/DeleteHashtag/{hashtag}";
             public const string UpdateHashtag = prefix + "/UpdateHashtag/{id}";
+            public const string GetHashtagById = prefix + "/{id}";
         }
 
 

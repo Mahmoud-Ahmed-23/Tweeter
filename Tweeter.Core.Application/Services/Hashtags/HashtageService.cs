@@ -25,6 +25,8 @@ namespace Tweeter.Core.Application.Services.Hashtags
             return Result<bool>.Success(result, 1);
         }
 
+
+
         public async Task<Result<HashtagToReturn>> UpdateAsync(int id, HashtagDto hashtag)
         {
 
@@ -48,6 +50,19 @@ namespace Tweeter.Core.Application.Services.Hashtags
 
 
 
+            return Result<HashtagToReturn>.Success(mappeddata, 1);
+        }
+
+
+        public async Task<Result<HashtagToReturn>> GetByIdAsync(int id)
+        {
+            var hashtagrepo = unitOfWork.GetRepository<Hashtag, int>();
+            var entity = await hashtagrepo.GetAsync(id);
+            if (entity is null)
+            {
+                return Result<HashtagToReturn>.Fail("Hashtag not found", ErrorType.NotFound);
+            }
+            var mappeddata = mapper.Map<HashtagToReturn>(entity);
             return Result<HashtagToReturn>.Success(mappeddata, 1);
         }
     }
