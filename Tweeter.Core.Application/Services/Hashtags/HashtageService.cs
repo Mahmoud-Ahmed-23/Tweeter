@@ -65,5 +65,23 @@ namespace Tweeter.Core.Application.Services.Hashtags
             var mappeddata = mapper.Map<HashtagToReturn>(entity);
             return Result<HashtagToReturn>.Success(mappeddata, 1);
         }
+
+        public async Task<Result<bool>> DeleteAsync(int id)
+        {
+
+            var hashtagrepo = unitOfWork.GetRepository<Hashtag, int>();
+            var entity = await hashtagrepo.GetAsync(id);
+            if (entity is null)
+            {
+                return Result<bool>.Fail("Hashtag not found", ErrorType.NotFound);
+            }
+            hashtagrepo.Delete(entity);
+            var result = await unitOfWork.CompleteAsync() > 0;
+            if (!result)
+            {
+                return Result<bool>.Fail("Failed to delete hashtag", ErrorType.BadRequest);
+            }
+            return Result<bool>.Success(result, 1);
+        }
     }
 }

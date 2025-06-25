@@ -29,5 +29,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Hashtags
             var result = await mediator.Send(new GetHashtagQuery(id));
             return NewResult(result);
         }
+        [HttpDelete(Router.HashtagRouting.DeleteHashtag)]
+        public async Task<ActionResult<bool>> DeleteHashtag([FromRoute] int id)
+        {
+            var result = await mediator.Send(new DeleteHashtagCommand(id));
+            return NewResult(result);
+        }
     }
 }
