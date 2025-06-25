@@ -42,7 +42,14 @@ namespace Tweeter.Core.Application.Services.Tweets
 		public async Task<Result<TweetToReturnDto>> CreateTweetAsync(CreateTweetDto tweetDto)
 		{
 			var mappedTweet = _mapper.Map<Tweet>(tweetDto);
-			mappedTweet.UserId = tweetDto.UserId;
+
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Result<TweetToReturnDto>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+			mappedTweet.UserId = userId;
 
 			if (tweetDto.ImageUrl is not null)
 			{
@@ -107,22 +114,22 @@ namespace Tweeter.Core.Application.Services.Tweets
 		public async Task<Result<Pagination<TweetToReturnDto>>> GetAllTweetsAsync(SpecParams specParams)
 		{
 			var specs = new TweetsForAllSpec(specParams.PageIndex, specParams.PageSize);
-			
+
 			var repo = _unitOfWork.GetRepository<Tweet, int>();
-			
+
 			var tweets = await repo.GetAllWithSpecAsync(specs);
-			
+
 			if (tweets is null || !tweets.Any())
 			{
 				return Result<Pagination<TweetToReturnDto>>.Fail("No tweets found.", ErrorType.NotFound);
 			}
-			
+
 			var countSpec = new TweetsForAllCountSpec();
-			
+
 			var totalCount = await repo.GetCountAsync(countSpec);
-			
+
 			var data = _mapper.Map<List<TweetToReturnDto>>(tweets);
-			
+
 			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
 		}
 
@@ -151,7 +158,7 @@ namespace Tweeter.Core.Application.Services.Tweets
 			var totalCount = await repo.GetCountAsync(countSpec);
 
 			var data = _mapper.Map<List<TweetToReturnDto>>(tweets);
-			
+
 			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
 		}
 
