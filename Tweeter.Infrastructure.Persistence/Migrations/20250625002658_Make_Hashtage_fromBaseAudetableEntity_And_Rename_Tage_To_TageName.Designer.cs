@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tweeter.Infrastructure.Persistence._Data;
 
@@ -11,9 +12,11 @@ using Tweeter.Infrastructure.Persistence._Data;
 namespace Tweeter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TweeterDbContext))]
-    partial class TweeterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625002658_Make_Hashtage_fromBaseAudetableEntity_And_Rename_Tage_To_TageName")]
+    partial class Make_Hashtage_fromBaseAudetableEntity_And_Rename_Tage_To_TageName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

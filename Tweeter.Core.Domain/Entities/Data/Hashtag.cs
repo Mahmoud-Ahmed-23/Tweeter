@@ -2,9 +2,12 @@
 
 namespace Tweeter.Core.Domain.Entities.Data
 {
-    public class Hashtag : BaseEntity<int>
+    public class Hashtag : BaseAuditableEntity<int>
     {
-        public string Tag { get; set; }
+        public string TagName { get; set; }
+
+
+
 
         // Navigation properties
         public virtual ICollection<TweetHashtag> TweetHashtags { get; set; }

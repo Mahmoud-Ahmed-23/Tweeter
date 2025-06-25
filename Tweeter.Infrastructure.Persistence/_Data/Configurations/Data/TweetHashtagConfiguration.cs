@@ -10,7 +10,8 @@ namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
         public override void Configure(EntityTypeBuilder<TweetHashtag> builder)
         {
             base.Configure(builder);
-            builder.HasKey(th => new { th.Id, th.HashtagId });
+
+            builder.HasKey(th => new { th.Id, th.TweetId, th.HashtagId });
 
             builder.HasOne(th => th.Tweet)
                   .WithMany(t => t.TweetHashtags)
