@@ -49,6 +49,9 @@ namespace Tweeter.Core.Application.Mapping
 
 
             CreateMap<Hashtag, HashtagDto>().ReverseMap();
+            CreateMap<Hashtag, HashtagToReturn>().ReverseMap();
+
+
 
 
 

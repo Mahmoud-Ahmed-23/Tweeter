@@ -22,7 +22,6 @@ namespace Tweeter.Core.Application.Features.Hashtages.Commands.Validators
                 .When(x => !string.IsNullOrEmpty(x.HashtagDto.TagName)); // Only validate if TagName is not null or empty
 
 
-
         }
     }
 }

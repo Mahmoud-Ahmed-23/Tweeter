@@ -6,6 +6,6 @@ namespace Tweeter.Core.Application.Features.Hashtages.Commands.Models
 {
     public class CreateHashtagCommand : IRequest<Response<bool>>
     {
-        public HashtagDto HashtagDto { get; set; }
+        public HashtagDto HashtagDto { get; set; } = new();
     }
 }

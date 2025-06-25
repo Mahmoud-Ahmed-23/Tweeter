@@ -16,6 +16,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Hashtags
             var result = await mediator.Send(new CreateHashtagCommand() { HashtagDto = hashtagDto });
             return NewResult(result);
         }
-
+        [HttpPut(Router.HashtagRouting.UpdateHashtag)]
+        public async Task<ActionResult<HashtagToReturn>> UpdateHashtag([FromRoute] int id, [FromBody] HashtagDto hashtagDto)
+        {
+            var result = await mediator.Send(new UpdateHashtagCommand(id, hashtagDto));
+            return NewResult(result);
+        }
     }
 }

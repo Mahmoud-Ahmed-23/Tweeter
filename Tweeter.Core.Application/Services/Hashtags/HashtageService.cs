@@ -24,5 +24,31 @@ namespace Tweeter.Core.Application.Services.Hashtags
             }
             return Result<bool>.Success(result, 1);
         }
+
+        public async Task<Result<HashtagToReturn>> UpdateAsync(int id, HashtagDto hashtag)
+        {
+
+
+
+            var hashtagrepo = unitOfWork.GetRepository<Hashtag, int>();
+            var entity = await hashtagrepo.GetAsync(id);
+            if (entity == null)
+            {
+                return Result<HashtagToReturn>.Fail("Hashtag not found", ErrorType.NotFound);
+            }
+            mapper.Map(hashtag, entity);
+            hashtagrepo.Update(entity);
+            var result = await unitOfWork.CompleteAsync() > 0;
+            if (!result)
+            {
+                return Result<HashtagToReturn>.Fail("Failed to update hashtag", ErrorType.BadRequest);
+            }
+            var mappeddata = mapper.Map<HashtagToReturn>(entity);
+
+
+
+
+            return Result<HashtagToReturn>.Success(mappeddata, 1);
+        }
     }
 }
