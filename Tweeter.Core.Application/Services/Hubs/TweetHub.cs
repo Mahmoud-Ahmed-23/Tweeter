@@ -18,8 +18,6 @@ public class TweetHub(ITweetService _tweetService, ILogger<TweetHub> _logger) : 
 				return;
 			}
 
-			createTweetDto.UserId = userId;
-
 			var tweetDto = await _tweetService.CreateTweetAsync(createTweetDto);
 
 			if (tweetDto.IsSuccess)
