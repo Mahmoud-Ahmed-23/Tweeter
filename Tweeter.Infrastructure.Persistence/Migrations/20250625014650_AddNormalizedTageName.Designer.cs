@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tweeter.Infrastructure.Persistence._Data;
 
@@ -11,9 +12,11 @@ using Tweeter.Infrastructure.Persistence._Data;
 namespace Tweeter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TweeterDbContext))]
-    partial class TweeterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625014650_AddNormalizedTageName")]
+    partial class AddNormalizedTageName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -615,13 +618,17 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Tweeter.Core.Domain.Entities.Data.TweetHashtag", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
                     b.Property<int>("TweetId")
                         .HasColumnType("int");
 
                     b.Property<int>("HashtagId")
                         .HasColumnType("int");
 
-                    b.HasKey("TweetId", "HashtagId");
+                    b.HasKey("Id", "TweetId", "HashtagId");
 
                     b.HasIndex("HashtagId");
 
@@ -867,7 +874,7 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
                     b.HasOne("Tweeter.Core.Domain.Entities.Data.Tweet", "Tweet")
                         .WithMany("TweetHashtags")
-                        .HasForeignKey("TweetId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
