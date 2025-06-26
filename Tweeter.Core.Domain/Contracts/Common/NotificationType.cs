@@ -6,6 +6,7 @@
         Retweet,
         Reply,
         Follow,
-        Mention
+        Mention,
+        Chat
     }
 }
