@@ -1,4 +1,6 @@
-﻿using Tweeter.Core.Application.Abstraction.Dtos.Hashtags;
+﻿using Tweeter.Core.Application.Abstraction.Common;
+using Tweeter.Core.Application.Abstraction.Dtos.Hashtags;
+using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
 using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Abstraction.Services.Hashtags
@@ -7,7 +9,9 @@ namespace Tweeter.Core.Application.Abstraction.Services.Hashtags
     {
 
         //Task<Pagination<HashtagToReturn>> GetAllAsync(SpecParams specParams);
-        //Task<Result<Pagination<TweetToReturnDto>>> GetTweetsByHashtagIdAsync(int id);
+
+
+        Task<Result<Pagination<TweetToReturnDto>>> GetTweetsByHashtagIdAsync(int id, SpecParams specParams);
 
 
 

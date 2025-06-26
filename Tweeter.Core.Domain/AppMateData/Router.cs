@@ -90,6 +90,7 @@
             public const string UpdateHashtag = prefix + "/UpdateHashtag/{id}";
             public const string GetHashtagById = prefix + "/{id}";
             public const string GetTopFiveHashtages = prefix + "/Get-TopFiveHashtags";
+            public const string GetTweetsByHashtagId = prefix + "/GetTweetsByHashtagId/{id}";
 
         }
 
