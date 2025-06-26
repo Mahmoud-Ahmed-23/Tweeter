@@ -33,6 +33,7 @@ namespace Tweeter.Core.Domain.Specifications
 
         }
 
+
         private protected void AddOrderBy(Expression<Func<TEntity, object>> orderBy)
         {
             OrderBy = orderBy;

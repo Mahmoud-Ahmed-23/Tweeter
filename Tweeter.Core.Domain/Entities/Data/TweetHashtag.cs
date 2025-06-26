@@ -1,6 +1,8 @@
-﻿namespace Tweeter.Core.Domain.Entities.Data
+﻿using Tweeter.Core.Domain.Common;
+
+namespace Tweeter.Core.Domain.Entities.Data
 {
-    public class TweetHashtag
+    public class TweetHashtag : BaseEntity<int>
     {
         public int HashtagId { get; set; }
 

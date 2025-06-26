@@ -10,6 +10,9 @@ namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
         {
             builder.HasKey(th => new { th.TweetId, th.HashtagId });
 
+            builder.Property(p => p.Id).UseIdentityColumn(1, 1);
+            builder.Property(p => p.Id).HasColumnName("Container");
+
             builder.HasOne(th => th.Tweet)
                   .WithMany(t => t.TweetHashtags)
                   .HasForeignKey(th => th.TweetId)

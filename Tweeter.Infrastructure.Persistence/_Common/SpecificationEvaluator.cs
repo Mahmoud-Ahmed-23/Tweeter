@@ -27,6 +27,7 @@ namespace Tweeter.Infrastructure.Persistence._Common
 
 
             query = specs.Includes.Aggregate(query, (currentQuery, Include) => currentQuery.Include(Include));
+
             //dbContext.Set<TEntity>.Where(E => E.id == id).Include(E=>E.Entity)
             //dbContext.Set<TEntity>.Where(E => E.id == id).Include(E=>E.Entity).Include(E=>E.Entity)
 

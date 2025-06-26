@@ -10,6 +10,7 @@ namespace Tweeter.Core.Domain.Contracts.Specifications
         Expression<Func<TEntity, bool>>? Criteria { get; set; }
         List<Expression<Func<TEntity, object>>> Includes { get; set; }
 
+
         public Expression<Func<TEntity, object>>? OrderBy { get; set; }
         public Expression<Func<TEntity, object>>? OrderByDesending { get; set; }
 
