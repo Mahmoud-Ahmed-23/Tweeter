@@ -6,7 +6,7 @@ namespace Tweeter.Core.Domain.Entities.Data
     public class Tweet : BaseAuditableEntity<int>
     {
         public string UserId { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
         //public int LikeCount { get; set; }
 
         public string? ImageUrl { get; set; }

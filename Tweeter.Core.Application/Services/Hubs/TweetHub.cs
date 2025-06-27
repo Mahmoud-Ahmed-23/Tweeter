@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
-using Tweeter.Core.Application.Abstraction.Services.Tweets;
+using Tweeter.Core.Application.Abstraction.Dtos.Community;
+using Tweeter.Core.Application.Abstraction.Services.Community;
 
-public class TweetHub(ITweetService _tweetService, ILogger<TweetHub> _logger) : Hub
+public class TweetHub(ICommunityService _tweetService, ILogger<TweetHub> _logger) : Hub
 {
 	public async Task SendTweet(CreateTweetDto createTweetDto)
 	{

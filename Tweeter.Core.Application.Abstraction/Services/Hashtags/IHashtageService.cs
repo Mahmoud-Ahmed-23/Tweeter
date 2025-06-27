@@ -1,6 +1,6 @@
 ﻿using Tweeter.Core.Application.Abstraction.Common;
 using Tweeter.Core.Application.Abstraction.Dtos.Hashtags;
-using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
+using Tweeter.Core.Application.Abstraction.Dtos.Community;
 using Tweeter.Shared.Results;
 
 namespace Tweeter.Core.Application.Abstraction.Services.Hashtags

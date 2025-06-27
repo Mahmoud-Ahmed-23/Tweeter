@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tweeter.Apis.Controllers.Controllers.Base;
 using Tweeter.Core.Application.Abstraction.Common;
 using Tweeter.Core.Application.Abstraction.Dtos.Hashtags;
-using Tweeter.Core.Application.Abstraction.Dtos.Tweets;
+using Tweeter.Core.Application.Abstraction.Dtos.Community;
 using Tweeter.Core.Application.Features.Hashtages.Commands.Models;
 using Tweeter.Core.Application.Features.Hashtages.Queries.Models;
 using Tweeter.Core.Domain.AppMateData;

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tweeter.Infrastructure.Persistence._Data;
 
@@ -11,9 +12,11 @@ using Tweeter.Infrastructure.Persistence._Data;
 namespace Tweeter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TweeterDbContext))]
-    partial class TweeterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250627142214_Make Comment nullable in Retweet, content nullable in Tweet and make Retweet Likable and Retweetable")]
+    partial class MakeCommentnullableinRetweetcontentnullableinTweetandmakeRetweetLikableandRetweetable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,35 +287,14 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("JoinDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NormalizedTagName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TagName")
+                    b.Property<string>("Tag")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TagName")
+                    b.HasIndex("Tag")
                         .IsUnique();
 
                     b.ToTable("Hashtags");
@@ -634,23 +616,17 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Tweeter.Core.Domain.Entities.Data.TweetHashtag", b =>
                 {
-                    b.Property<int>("TweetId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<int>("HashtagId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Container");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<int?>("RetweetId")
                         .HasColumnType("int");
 
-                    b.HasKey("TweetId", "HashtagId");
+                    b.HasKey("Id", "HashtagId");
 
                     b.HasIndex("HashtagId");
 
@@ -912,15 +888,15 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Tweeter.Core.Domain.Entities.Data.Tweet", "Tweet")
+                        .WithMany("TweetHashtags")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Tweeter.Core.Domain.Entities.Data.Retweet", null)
                         .WithMany("TweetHashtags")
                         .HasForeignKey("RetweetId");
-
-                    b.HasOne("Tweeter.Core.Domain.Entities.Data.Tweet", "Tweet")
-                        .WithMany("TweetHashtags")
-                        .HasForeignKey("TweetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Hashtag");
 
