@@ -4,26 +4,26 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Tweeter.Core.Application.Abstraction.Services.Chats;
+using Tweeter.Core.Application.Abstraction.Services.Community;
 using Tweeter.Core.Application.Abstraction.Services.Emails;
 using Tweeter.Core.Application.Abstraction.Services.Following;
 using Tweeter.Core.Application.Abstraction.Services.Hashtags;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
 using Tweeter.Core.Application.Abstraction.Services.Notifications;
-using Tweeter.Core.Application.Abstraction.Services.Tweets;
 using Tweeter.Core.Application.Bases;
 using Tweeter.Core.Application.Features.Behaviors;
 using Tweeter.Core.Application.Features.Identity.Account.Command.Validators;
 using Tweeter.Core.Application.Features.Identity.Authentication.Command.Validators;
 using Tweeter.Core.Application.Mapping;
 using Tweeter.Core.Application.Services.Chats;
+using Tweeter.Core.Application.Services.Community;
 using Tweeter.Core.Application.Services.Emails;
 using Tweeter.Core.Application.Services.Following;
 using Tweeter.Core.Application.Services.Hashtags;
 using Tweeter.Core.Application.Services.Identity.Account;
 using Tweeter.Core.Application.Services.Identity.Authentication;
 using Tweeter.Core.Application.Services.Notifications;
-using Tweeter.Core.Application.Services.Tweets;
 using Tweeter.Shared.Settings;
 
 namespace Tweeter.Core.Application
@@ -53,10 +53,10 @@ namespace Tweeter.Core.Application
 
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
-            services.AddScoped(typeof(IAuthenticationService), typeof(AuthenticationService));
-            services.AddScoped(typeof(IChatService), typeof(ChatService));
-            services.AddScoped(typeof(IFollowService), typeof(FollowService));
-            services.AddScoped(typeof(ITweetService), typeof(TweetService));
+			services.AddScoped(typeof(IAuthenticationService), typeof(AuthenticationService));
+			services.AddScoped(typeof(IChatService), typeof(ChatService));
+			services.AddScoped(typeof(IFollowService), typeof(FollowService));
+			services.AddScoped(typeof(ICommunityService), typeof(CommunityService));
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

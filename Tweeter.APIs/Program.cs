@@ -4,7 +4,7 @@ using Tweeter.Core.Application;
 using Tweeter.Core.Application.Services.Hubs;
 using Tweeter.Infrastructure.Persistence;
 using Tweeter.Infrastructure;
-using Tweeter.Core.Application.Abstraction.Services.Tweets;
+using Tweeter.Core.Application.Abstraction.Services.Community;
 namespace Tweeter.APIs
 {
     public class Program
