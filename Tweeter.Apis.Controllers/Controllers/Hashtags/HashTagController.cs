@@ -49,5 +49,11 @@ namespace Tweeter.Apis.Controllers.Controllers.Hashtags
             var result = await mediator.Send(new GetTweetsBasedOnHashtagIdQuery(id, specParams));
             return NewResult(result);
         }
+        [HttpGet(Router.HashtagRouting.GetAllHashtags)]
+        public async Task<ActionResult<Pagination<HashtagToReturn>>> GetAllHashtages([FromQuery] SpecParams specParams)
+        {
+            var result = await mediator.Send(new GetAllHashtagesQuery(specParams));
+            return NewResult(result);
+        }
     }
 }

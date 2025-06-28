@@ -126,27 +126,27 @@ namespace Tweeter.Core.Application.Services.Hashtags
 
 
 
+        }
 
-            //var hashtagrepo = unitOfWork.GetRepository<Hashtag, int>();
-            //var entity = await hashtagrepo.GetAsync(id);
-            //if (entity is null)
-            //{
-            //    return Result<IEnumerable<TweetToReturnDto>>.Fail("Hashtag not found", ErrorType.NotFound);
-            //}
+        public async Task<Result<Pagination<HashtagToReturn>>> GetAllAsync(SpecParams specParams)
+        {
+            var spec = new HashtagSpecification(specParams.Sort, specParams.PageIndex, specParams.PageSize, specParams.Search);
 
-            //// include tweets associated with the hashtag
-            //// using SelectMany to flatten the collection of tweets associated with the hashtag
+            var hashrepo = unitOfWork.GetRepository<Hashtag, int>();
 
-            //var tweets = hashtagrepo.GetQueryable()
-            //    .Where(h => h.Id == id)
-            //    .SelectMany(h => h.TweetHashtags.Select(th => th.Tweet))
-            //    .ToList();
-            //if (tweets is null || !tweets.Any())
-            //{
-            //    return Result<IEnumerable<TweetToReturnDto>>.Fail("No tweets found for this hashtag", ErrorType.NotFound);
-            //}
-            //var mappedTweets = mapper.Map<IEnumerable<TweetToReturnDto>>(tweets);
-            //return Result<IEnumerable<TweetToReturnDto>>.Success(mappedTweets, mappedTweets.Count());
+            var hashtages = await hashrepo.GetAllWithSpecAsync(spec);
+
+            if (hashtages is null)
+            {
+                return Result<Pagination<HashtagToReturn>>.Fail("No Hashtages found ", ErrorType.NotFound);
+            }
+
+            var data = mapper.Map<IEnumerable<HashtagToReturn>>(hashtages);
+
+            var count = data.Count();
+
+            return Result<Pagination<HashtagToReturn>>.Success(new Pagination<HashtagToReturn>(specParams.PageIndex, specParams.PageSize, count) { Data = data });
+
 
 
 

@@ -11,7 +11,8 @@ namespace Tweeter.Core.Application.Features.Hashtages.Queries.Handlers
     public class HashtagQueryHandler : BaseHandler,
         IRequestHandler<GetHashtagQuery, Response<HashtagToReturn>>,
         IRequestHandler<GetTopFiveHashtagsBasedOnCountOfTweetsQuery, Response<IEnumerable<HashtagToReturn>>>,
-    IRequestHandler<GetTweetsBasedOnHashtagIdQuery, Response<Pagination<TweetToReturnDto>>>
+    IRequestHandler<GetTweetsBasedOnHashtagIdQuery, Response<Pagination<TweetToReturnDto>>>,
+        IRequestHandler<GetAllHashtagesQuery, Response<Pagination<HashtagToReturn>>>
 
     {
         private readonly IHashtageService hashtageService;
@@ -35,6 +36,12 @@ namespace Tweeter.Core.Application.Features.Hashtages.Queries.Handlers
         public async Task<Response<Pagination<TweetToReturnDto>>> Handle(GetTweetsBasedOnHashtagIdQuery request, CancellationToken cancellationToken)
         {
             var result = await hashtageService.GetTweetsByHashtagIdAsync(request.Id, request.SpecParams);
+            return await HandleResultAsync(Task.FromResult(result));
+        }
+
+        public async Task<Response<Pagination<HashtagToReturn>>> Handle(GetAllHashtagesQuery request, CancellationToken cancellationToken)
+        {
+            var result = await hashtageService.GetAllAsync(request.SpecParams);
             return await HandleResultAsync(Task.FromResult(result));
         }
     }

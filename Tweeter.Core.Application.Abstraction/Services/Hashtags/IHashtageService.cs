@@ -8,7 +8,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Hashtags
     public interface IHashtageService
     {
 
-        //Task<Pagination<HashtagToReturn>> GetAllAsync(SpecParams specParams);
+        Task<Result<Pagination<HashtagToReturn>>> GetAllAsync(SpecParams specParams);
 
 
         Task<Result<Pagination<TweetToReturnDto>>> GetTweetsByHashtagIdAsync(int id, SpecParams specParams);

@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Tweeter.Core.Application/Mapping/Resolvers/TriggerUserNotificationPictureUrlResolver.cs
+/Tweeter.Core.Application/Mapping/Resolvers/TweetPictureUrlResolver.cs
