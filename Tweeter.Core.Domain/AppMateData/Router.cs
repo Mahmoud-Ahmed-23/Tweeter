@@ -80,8 +80,11 @@
 
 
 			public const string LikeTweet = prefix + "/Like/{id}";
+			public const string LikeRetweet = prefix + "/LikeRetweet/{id}";
+
 
 			public const string Retweet = prefix + "/Retweet/{id}";
+			public const string UnRetweet = prefix + "/UnRetweet/{id}";
 			public const string GetRetweet = prefix + "/GetRetweet/{id}";
 
 

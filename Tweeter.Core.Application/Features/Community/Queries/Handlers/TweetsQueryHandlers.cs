@@ -21,7 +21,7 @@ namespace Tweeter.Core.Application.Features.Community.Queries.Handlers
 		IRequestHandler<GetTweetsToSpecificUserQuery, Response<Pagination<TweetToReturnDto>>>,
 		IRequestHandler<GetTweetByIdQuery, Response<TweetToReturnDto>>,
 		IRequestHandler<GetAllTweetsQuery, Response<Pagination<TweetToReturnDto>>>,
-		IRequestHandler<GetFollowedUsersTweetsQuery, Response<Pagination<TweetToReturnDto>>>,
+		IRequestHandler<GetFollowedUsersTweetsandRetweetsQuery, Response<Pagination<RetweetToReturnDto>>>,
 		IRequestHandler<GetRetweetQuery, Response<RetweetToReturnDto>>
 	{
 		private readonly ICommunityService _tweetService;
@@ -59,9 +59,9 @@ namespace Tweeter.Core.Application.Features.Community.Queries.Handlers
 			return await HandleResultAsync(Task.FromResult(result));
 		}
 
-		public async Task<Response<Pagination<TweetToReturnDto>>> Handle(GetFollowedUsersTweetsQuery request, CancellationToken cancellationToken)
+		public async Task<Response<Pagination<RetweetToReturnDto>>> Handle(GetFollowedUsersTweetsandRetweetsQuery request, CancellationToken cancellationToken)
 		{
-			var result = await _tweetService.GetFollowedUsersTweetsAsync(request.SpecParams);
+			var result = await _tweetService.GetFollowedUsersTweetsandRetweetsAsync(request.SpecParams);
 			return await HandleResultAsync(Task.FromResult(result));
 		}
 

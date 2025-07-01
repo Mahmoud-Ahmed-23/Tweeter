@@ -17,7 +17,7 @@ namespace Tweeter.Core.Application.Abstraction.Services.Community
 
 		Task<Result<Pagination<TweetToReturnDto>>> GetAllTweetsAsync(SpecParams specParams);
 
-		Task<Result<Pagination<TweetToReturnDto>>> GetFollowedUsersTweetsAsync(SpecParams specParams);
+		Task<Result<Pagination<RetweetToReturnDto>>> GetFollowedUsersTweetsandRetweetsAsync(SpecParams specParams);
 
 		Task<Result<Pagination<TweetToReturnDto>>> GetTweetsByUserIdAsync(string userId, SpecParams specParams);
 
@@ -28,12 +28,13 @@ namespace Tweeter.Core.Application.Abstraction.Services.Community
 
 		Task<Result<string>> LikeTweetAsync(int tweetId);
 
+		Task<Result<string>> LikeRetweetAsync(int retweetId);
 
 		Task<Result<RetweetToReturnDto>> RetweetAsync(int tweetId, string? content);
 		Task<Result<RetweetToReturnDto>> GetRetweetAsync(int tweetId);
 		//Task<Result<Pagination<RetweetToReturnDto>>> GetRetweetsByUserIdAsync(string userId, SpecParams specParams);
 		//Task<Result<Pagination<RetweetToReturnDto>>> GetRetweetsByTweetIdAsync(int tweetId, SpecParams specParams);
 
-		Task<Result<string>> UnretweetAsync(int tweetId);
+		Task<Result<string>> UnRetweetAsync(int tweetId);
 	}
 }

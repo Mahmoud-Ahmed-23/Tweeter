@@ -37,7 +37,16 @@ namespace Tweeter.Core.Application.Mapping
 				.ForMember(dest => dest.RetweetCount, opt => opt.MapFrom(src => src.Retweets.Count))
 				.ForMember(dest => dest.ReplyCount, opt => opt.MapFrom(src => src.Replies.Count));
 
-            CreateMap<UpdateTweetDto, Tweet>();
+			CreateMap<Tweet, RetweetToReturnDto>()
+				.ForMember(dest => dest.TweetId, opt => opt.MapFrom(src => src.Id))
+				.ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
+				.ForMember(dest => dest.UserProfilePictureUrl, opt => opt.MapFrom<TweetUserProfilePictureUrlResolver>())
+				.ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<TweetPictureUrlResolver>())
+				.ForMember(dest => dest.LikeCount, opt => opt.MapFrom(src => src.Likes.Count))
+				.ForMember(dest => dest.RetweetCount, opt => opt.MapFrom(src => src.Retweets.Count))
+				.ForMember(dest => dest.ReplyCount, opt => opt.MapFrom(src => src.Replies.Count));
+
+			CreateMap<UpdateTweetDto, Tweet>();
 
 			CreateMap<Retweet, RetweetToReturnDto>()
 				.ForMember(dest => dest.RetweetId, opt => opt.MapFrom(src => src.Id))
@@ -46,7 +55,6 @@ namespace Tweeter.Core.Application.Mapping
 				.ForMember(dest => dest.RetweetedAt, opt => opt.MapFrom(src => src.RetweetedAt))
 				.ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
 				.ForMember(dest => dest.LikeCount, opt => opt.MapFrom(src => src.Likes.Count))
-				.ForMember(dest => dest.RetweetCount, opt => opt.MapFrom(src => src.Retweets.Count))
 				.ForMember(dest => dest.ReplyCount, opt => opt.MapFrom(src => src.Replies.Count))
 				// ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 				.ForMember(dest => dest.TweetId, opt => opt.MapFrom(src => src.OriginalTweetId))

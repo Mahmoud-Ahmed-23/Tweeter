@@ -9,6 +9,7 @@ namespace Tweeter.Core.Domain.Entities.Data
         public string UserId { get; set; }
         public int TweetId { get; set; }
 
+
         // Navigation properties
         public virtual ApplicationUser User { get; set; }
         public virtual Tweet Tweet { get; set; }
