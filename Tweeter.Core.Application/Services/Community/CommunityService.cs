@@ -17,6 +17,7 @@ using Tweeter.Core.Domain.Contracts.Infrastructure;
 using Tweeter.Core.Domain.Contracts.Persistence;
 using Tweeter.Core.Domain.Entities.Data;
 using Tweeter.Core.Domain.Entities.Identity;
+using Tweeter.Core.Domain.Specifications.Retweets;
 using Tweeter.Core.Domain.Specifications.Tweets;
 using Tweeter.Shared.Results;
 
@@ -139,34 +140,73 @@ namespace Tweeter.Core.Application.Services.Community
 			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
 		}
 
-		public async Task<Result<Pagination<TweetToReturnDto>>> GetFollowedUsersTweetsAsync(SpecParams specParams)
+		public async Task<Result<Pagination<RetweetToReturnDto>>> GetFollowedUsersTweetsandRetweetsAsync(SpecParams specParams)
 		{
 			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
 
 			if (string.IsNullOrEmpty(userId))
 			{
-				return Result<Pagination<TweetToReturnDto>>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+				return Result<Pagination<RetweetToReturnDto>>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
 			}
 
+			var tweets = await TweetsForFollowedUsers(userId, specParams);
+
+			var retweets = await RetweetsForFollowedUsers(userId, specParams);
+
+			if ((tweets is null || !tweets.Any()) && (retweets is null || !retweets.Any()))
+			{
+				return Result<Pagination<RetweetToReturnDto>>.Fail("No tweets found for followed users.", ErrorType.NotFound);
+			}
+
+
+			var tweetCountSpec = await TweetsForFollowedUsersCount(userId);
+
+			var retweetCountSpec = await RetweetsForFollowedUsersCount(userId);
+
+			var totalCount = tweetCountSpec + retweetCountSpec;
+
+			var data = _mapper.Map<List<RetweetToReturnDto>>(tweets);
+
+			data.AddRange(_mapper.Map<List<RetweetToReturnDto>>(retweets));
+
+			return Result<Pagination<RetweetToReturnDto>>.Success(new Pagination<RetweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+		}
+
+		private async Task<IEnumerable<Tweet>> TweetsForFollowedUsers(string userId, SpecParams specParams)
+		{
 			var specs = new TweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize);
 
 			var repo = _unitOfWork.GetRepository<Tweet, int>();
 
-			var tweets = await repo.GetAllWithSpecAsync(specs);
-
-			if (tweets is null || !tweets.Any())
-			{
-				return Result<Pagination<TweetToReturnDto>>.Fail("No tweets found for followed users.", ErrorType.NotFound);
-			}
-
+			return await repo.GetAllWithSpecAsync(specs);
+		}
+		private async Task<int> TweetsForFollowedUsersCount(string userId)
+		{
 			var countSpec = new TweetsForFollowedUsersCountSpec(userId);
 
-			var totalCount = await repo.GetCountAsync(countSpec);
+			var repo = _unitOfWork.GetRepository<Tweet, int>();
 
-			var data = _mapper.Map<List<TweetToReturnDto>>(tweets);
-
-			return Result<Pagination<TweetToReturnDto>>.Success(new Pagination<TweetToReturnDto>(specParams.PageIndex, specParams.PageSize, totalCount) { Data = data });
+			return await repo.GetCountAsync(countSpec);
 		}
+
+		private async Task<IEnumerable<Retweet>> RetweetsForFollowedUsers(string userId, SpecParams specParams)
+		{
+			var specs = new RetweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize);
+
+			var repo = _unitOfWork.GetRepository<Retweet, int>();
+
+			return await repo.GetAllWithSpecAsync(specs);
+		}
+
+		private async Task<int> RetweetsForFollowedUsersCount(string userId)
+		{
+			var countSpec = new RetweetsForFollowedUsersCountSpec(userId);
+
+			var repo = _unitOfWork.GetRepository<Retweet, int>();
+
+			return await repo.GetCountAsync(countSpec);
+		}
+
 
 		public async Task<Result<TweetToReturnDto>> GetTweetByIdAsync(int tweetId)
 		{
@@ -343,11 +383,21 @@ namespace Tweeter.Core.Application.Services.Community
 			return Result<string>.Success("Tweet unliked successfully.");
 		}
 
+
 		public async Task<Result<RetweetToReturnDto>> RetweetAsync(int tweetId, string? content)
 		{
 			var tweetRepo = _unitOfWork.GetRepository<Tweet, int>();
 
+			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
+
 			var tweet = await tweetRepo.GetAsync(tweetId);
+
+			var getRetweet = await retweetRepo.GetAsync(tweetId);
+
+			if (getRetweet is not null)
+			{
+				tweet = getRetweet.OriginalTweet;
+			}
 
 			if (tweet is null)
 			{
@@ -361,11 +411,10 @@ namespace Tweeter.Core.Application.Services.Community
 				return Result<RetweetToReturnDto>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
 			}
 
-			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
 
 			var retweet = new Retweet
 			{
-				OriginalTweetId = tweetId,
+				OriginalTweetId = tweet.Id,
 				UserId = userId,
 				Comment = content ?? string.Empty,
 				RetweetedAt = DateTime.UtcNow,
@@ -387,9 +436,34 @@ namespace Tweeter.Core.Application.Services.Community
 		}
 
 
-		public Task<Result<string>> UnretweetAsync(int tweetId)
+		public async Task<Result<string>> UnRetweetAsync(int tweetId)
 		{
-			throw new NotImplementedException();
+			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
+
+			var retweet = await retweetRepo.GetAsync(tweetId);
+
+			if (retweet is null)
+			{
+				return Result<string>.Fail("Retweet not found.", ErrorType.NotFound);
+			}
+
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+
+			if (string.IsNullOrEmpty(userId) || userId != retweet.UserId)
+			{
+				return Result<string>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+
+			retweetRepo.Delete(retweet);
+
+			var completed = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!completed)
+			{
+				return Result<string>.Fail("Failed to unretweet", ErrorType.Unexpected);
+			}
+
+			return Result<string>.Success("Retweet deleted successfully.");
 		}
 
 		public async Task<Result<RetweetToReturnDto>> GetRetweetAsync(int tweetId)
@@ -406,6 +480,85 @@ namespace Tweeter.Core.Application.Services.Community
 			var retweetToReturn = _mapper.Map<RetweetToReturnDto>(retweet);
 
 			return Result<RetweetToReturnDto>.Success(retweetToReturn);
+		}
+
+		public async Task<Result<string>> LikeRetweetAsync(int retweetId)
+		{
+			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
+
+			var retweet = await retweetRepo.GetAsync(retweetId);
+			
+			if (retweet is null)
+			{
+				return Result<string>.Fail("Retweet not found.", ErrorType.NotFound);
+			}
+			
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+			
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Result<string>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+			
+			if (retweet.Likes.Any(l => l.UserId == userId))
+			{
+				await UnlikeRetweetAsync(retweetId);
+				// If the user already liked the retweet, we remove the like and return a success message.
+				return Result<string>.Success("Retweet unliked successfully.");
+			}
+			
+			retweet.Likes.Add(new RetweetLikes { UserId = userId, RetweetId = retweetId });
+			
+			retweetRepo.Update(retweet);
+			
+			var completed = await _unitOfWork.CompleteAsync() > 0;
+			
+			if (!completed)
+			{
+				return Result<string>.Fail("Failed to like retweet", ErrorType.Unexpected);
+			}
+			
+			return Result<string>.Success("Retweet liked successfully.");
+		}
+		private async Task<Result<string>> UnlikeRetweetAsync(int retweetId)
+		{
+			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
+			
+			var retweet = await retweetRepo.GetAsync(retweetId);
+			
+			if (retweet is null)
+			{
+				return Result<string>.Fail("Retweet not found.", ErrorType.NotFound);
+			}
+			
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+			
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Result<string>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+			
+			var like = retweet.Likes.FirstOrDefault(l => l.UserId == userId);
+			
+			if (like is null)
+			{
+				await LikeRetweetAsync(retweetId);
+				// If the user has not liked the retweet, we add the like and return a success message.
+				return Result<string>.Success("Retweet liked successfully.");
+			}
+
+			retweet.Likes.Remove(like);
+
+			retweetRepo.Update(retweet);
+
+			var completed = await _unitOfWork.CompleteAsync() > 0;
+			
+			if (!completed)
+			{
+				return Result<string>.Fail("Failed to unlike retweet", ErrorType.Unexpected);
+			}
+			
+			return Result<string>.Success("Retweet unliked successfully.");
 		}
 	}
 }

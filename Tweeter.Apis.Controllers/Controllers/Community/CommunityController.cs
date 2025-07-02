@@ -66,7 +66,7 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 		[HttpGet(Router.CommunityRouting.GetTweetsForFollowedUsers)]
 		public async Task<ActionResult<Pagination<TweetToReturnDto>>> GetTweetsForFollowedUsers([FromQuery] SpecParams specParams)
 		{
-			var result = await mediator.Send(new GetFollowedUsersTweetsQuery(specParams));
+			var result = await mediator.Send(new GetFollowedUsersTweetsandRetweetsQuery(specParams));
 			return NewResult(result);
 		}
 
@@ -79,10 +79,26 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 		}
 
 		[Authorize]
+		[HttpPost(Router.CommunityRouting.LikeRetweet)]
+		public async Task<ActionResult<string>> LikeRetweet([FromRoute] int id)
+		{
+			var result = await mediator.Send(new LikeRetweetCommand(id));
+			return NewResult(result);
+		}
+
+		[Authorize]
 		[HttpPost(Router.CommunityRouting.Retweet)]
 		public async Task<ActionResult<RetweetToReturnDto>> Retweet([FromRoute] int id, [FromBody] string? content)
 		{
 			var result = await mediator.Send(new RetweetCommand(id, content));
+			return NewResult(result);
+		}
+
+		[Authorize]
+		[HttpDelete(Router.CommunityRouting.UnRetweet)]
+		public async Task<ActionResult<string>> DeleteRetweet([FromRoute] int id)
+		{
+			var result = await mediator.Send(new UnRetweetCommand(id));
 			return NewResult(result);
 		}
 

@@ -14,6 +14,7 @@ namespace Tweeter.Core.Domain.Entities.Identity
 
         public virtual ICollection<Tweet> Tweets { get; set; }
         public virtual ICollection<Like> Likes { get; set; }
+        public virtual ICollection<RetweetLikes> RetweetLikes { get; set; }
         public virtual ICollection<Retweet> Retweets { get; set; }
         public virtual ICollection<Reply> Replies { get; set; }
         public virtual ICollection<Follow> Followers { get; set; } // Users who follow this user

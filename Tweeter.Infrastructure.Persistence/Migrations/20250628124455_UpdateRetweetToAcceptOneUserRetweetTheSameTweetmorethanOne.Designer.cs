@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tweeter.Infrastructure.Persistence._Data;
 
@@ -11,9 +12,11 @@ using Tweeter.Infrastructure.Persistence._Data;
 namespace Tweeter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TweeterDbContext))]
-    partial class TweeterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250628124455_UpdateRetweetToAcceptOneUserRetweetTheSameTweetmorethanOne")]
+    partial class UpdateRetweetToAcceptOneUserRetweetTheSameTweetmorethanOne
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -346,6 +349,9 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                     b.Property<int>("LikeId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RetweetId")
+                        .HasColumnType("int");
+
                     b.Property<int>("TweetId")
                         .HasColumnType("int");
 
@@ -354,6 +360,8 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RetweetId");
 
                     b.HasIndex("TweetId");
 
@@ -558,6 +566,9 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                     b.Property<int>("OriginalTweetId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RetweetId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("RetweetedAt")
                         .HasColumnType("datetime2");
 
@@ -569,51 +580,11 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OriginalTweetId");
 
+                    b.HasIndex("RetweetId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Retweets");
-                });
-
-            modelBuilder.Entity("Tweeter.Core.Domain.Entities.Data.RetweetLikes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("JoinDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RetweetId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RetweetId");
-
-                    b.HasIndex("UserId", "RetweetId")
-                        .IsUnique();
-
-                    b.ToTable("RetweetLikes");
                 });
 
             modelBuilder.Entity("Tweeter.Core.Domain.Entities.Data.Tweet", b =>
@@ -789,6 +760,10 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Tweeter.Core.Domain.Entities.Data.Like", b =>
                 {
+                    b.HasOne("Tweeter.Core.Domain.Entities.Data.Retweet", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("RetweetId");
+
                     b.HasOne("Tweeter.Core.Domain.Entities.Data.Tweet", "Tweet")
                         .WithMany("Likes")
                         .HasForeignKey("TweetId")
@@ -905,6 +880,10 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Tweeter.Core.Domain.Entities.Data.Retweet", null)
+                        .WithMany("Retweets")
+                        .HasForeignKey("RetweetId");
+
                     b.HasOne("Tweeter.Core.Domain.Entities.Identity.ApplicationUser", "User")
                         .WithMany("Retweets")
                         .HasForeignKey("UserId")
@@ -912,25 +891,6 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("OriginalTweet");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Tweeter.Core.Domain.Entities.Data.RetweetLikes", b =>
-                {
-                    b.HasOne("Tweeter.Core.Domain.Entities.Data.Retweet", "Retweet")
-                        .WithMany("Likes")
-                        .HasForeignKey("RetweetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Tweeter.Core.Domain.Entities.Identity.ApplicationUser", "User")
-                        .WithMany("RetweetLikes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Retweet");
 
                     b.Navigation("User");
                 });
@@ -1019,6 +979,8 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Replies");
 
+                    b.Navigation("Retweets");
+
                     b.Navigation("TweetHashtags");
                 });
 
@@ -1050,8 +1012,6 @@ namespace Tweeter.Infrastructure.Persistence.Migrations
                     b.Navigation("ReceivedMessages");
 
                     b.Navigation("Replies");
-
-                    b.Navigation("RetweetLikes");
 
                     b.Navigation("Retweets");
 

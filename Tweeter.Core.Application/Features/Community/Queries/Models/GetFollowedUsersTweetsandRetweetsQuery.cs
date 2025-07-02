@@ -5,11 +5,11 @@ using Tweeter.Core.Application.Bases;
 
 namespace Tweeter.Core.Application.Features.Community.Queries.Models
 {
-	public class GetFollowedUsersTweetsQuery : IRequest<Response<Pagination<TweetToReturnDto>>>
+	public class GetFollowedUsersTweetsandRetweetsQuery : IRequest<Response<Pagination<RetweetToReturnDto>>>
 	{
 		public SpecParams SpecParams { get; set; }
 
-		public GetFollowedUsersTweetsQuery(SpecParams specParams)
+		public GetFollowedUsersTweetsandRetweetsQuery(SpecParams specParams)
 		{
 			SpecParams = specParams;
 		}

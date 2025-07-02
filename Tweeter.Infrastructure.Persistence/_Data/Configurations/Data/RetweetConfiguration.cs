@@ -10,7 +10,7 @@ namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
         public override void Configure(EntityTypeBuilder<Retweet> builder)
         {
             base.Configure(builder);
-            builder.HasIndex(r => new { r.UserId, r.OriginalTweetId }).IsUnique();
+
 
             // Relationships
             builder.HasOne(r => r.User)

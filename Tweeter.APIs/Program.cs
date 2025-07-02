@@ -41,9 +41,6 @@ namespace Tweeter.APIs
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.MapHub<ChatHub>("/hubs/chat");
-            app.MapHub<NotificationHub>("/hubs/notification");
-            app.MapHub<TweetHub>("/hubs/Tweet");
             app.UseHttpsRedirection();
 
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");
@@ -60,6 +57,10 @@ namespace Tweeter.APIs
 
 
             app.MapControllers();
+            
+            app.MapHub<ChatHub>("/hubs/chat");
+            app.MapHub<NotificationHub>("/hubs/notification");
+            app.MapHub<TweetHub>("/hubs/Tweet");
 
             app.Run();
         }

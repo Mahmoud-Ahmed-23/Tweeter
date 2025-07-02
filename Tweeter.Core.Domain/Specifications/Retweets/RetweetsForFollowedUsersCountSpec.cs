@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Tweeter.Core.Domain.Entities.Data;
 
-namespace Tweeter.Core.Domain.Specifications.Tweets
+namespace Tweeter.Core.Domain.Specifications.Retweets
 {
-	public class TweetsForFollowedUsersCountSpec : BaseSpecification<Tweet, int>
+	public class RetweetsForFollowedUsersCountSpec : BaseSpecification<Retweet, int>
 	{
-		public TweetsForFollowedUsersCountSpec(string userId)
+		public RetweetsForFollowedUsersCountSpec(string userId)
 			: base(p => p.User.Followers.Any(f => f.FollowerId == userId))
 		{
 		}
