@@ -6,36 +6,42 @@ using Tweeter.Infrastructure.Persistence._Data.Configurations.Base;
 
 namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
 {
-    internal class NotificationConfiguration : BaseEntityConfigurations<Notification, int>
-    {
-        public override void Configure(EntityTypeBuilder<Notification> builder)
-        {
-            base.Configure(builder);
-            builder.Property(n => n.NotificationType).IsRequired();
-            builder.Property(n => n.IsRead).HasDefaultValue(false);
-            builder.Property(n => n.CreatedAt).HasDefaultValueSql("GETDATE()");
+	internal class NotificationConfiguration : BaseEntityConfigurations<Notification, int>
+	{
+		public override void Configure(EntityTypeBuilder<Notification> builder)
+		{
+			base.Configure(builder);
+			builder.Property(n => n.NotificationType).IsRequired();
+			builder.Property(n => n.IsRead).HasDefaultValue(false);
+			builder.Property(n => n.CreatedAt).HasDefaultValueSql("GETDATE()");
 
-            builder.Property(n => n.NotificationType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (NotificationType)Enum.Parse(typeof(NotificationType), v));
+			builder.Property(n => n.NotificationType)
+				.HasConversion(
+					v => v.ToString(),
+					v => (NotificationType)Enum.Parse(typeof(NotificationType), v));
 
-            // Relationships
-            builder.HasOne(n => n.Tweet)
-             .WithMany()
-             .HasForeignKey(n => n.TweetId)
-             .OnDelete(DeleteBehavior.NoAction); // Changed from Cascade
+			// Relationships
+			builder.HasOne(n => n.Tweet)
+			 .WithMany()
+			 .HasForeignKey(n => n.TweetId)
+			 .OnDelete(DeleteBehavior.NoAction); // Changed from Cascade
 
-            // Other relationships remain the same
-            builder.HasOne(n => n.User)
-                  .WithMany(u => u.Notifications)
-                  .HasForeignKey(n => n.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
+			// Relationships
+			builder.HasOne(n => n.Retweet)
+			 .WithMany()
+			 .HasForeignKey(n => n.RetweetId)
+			 .OnDelete(DeleteBehavior.NoAction); // Changed from Cascade
 
-            builder.HasOne(n => n.TriggerUser)
-                  .WithMany()
-                  .HasForeignKey(n => n.TriggerUserId)
-                  .OnDelete(DeleteBehavior.NoAction);
-        }
-    }
+			// Other relationships remain the same
+			builder.HasOne(n => n.User)
+				  .WithMany(u => u.Notifications)
+				  .HasForeignKey(n => n.UserId)
+				  .OnDelete(DeleteBehavior.Cascade);
+
+			builder.HasOne(n => n.TriggerUser)
+				  .WithMany()
+				  .HasForeignKey(n => n.TriggerUserId)
+				  .OnDelete(DeleteBehavior.NoAction);
+		}
+	}
 }

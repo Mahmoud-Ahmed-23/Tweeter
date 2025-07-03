@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,8 @@ using Tweeter.Core.Application.Abstraction.Dtos.Community;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Dtos.Messages;
 using Tweeter.Core.Application.Abstraction.Services.Community;
+using Tweeter.Core.Application.Services.Hubs;
+using Tweeter.Core.Domain.Contracts.Common;
 using Tweeter.Core.Domain.Contracts.Infrastructure;
 using Tweeter.Core.Domain.Contracts.Persistence;
 using Tweeter.Core.Domain.Entities.Data;
@@ -20,6 +24,7 @@ using Tweeter.Core.Domain.Entities.Identity;
 using Tweeter.Core.Domain.Specifications.Retweets;
 using Tweeter.Core.Domain.Specifications.Tweets;
 using Tweeter.Shared.Results;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Tweeter.Core.Application.Services.Community
 {
@@ -30,14 +35,16 @@ namespace Tweeter.Core.Application.Services.Community
 		private readonly IAttachmentService _attachmentService;
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IConfiguration _configuration;
+		private readonly IHubContext<NotificationHub> _hubContext;
 
-		public CommunityService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IAttachmentService attachmentService, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+		public CommunityService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IAttachmentService attachmentService, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IHubContext<NotificationHub> hubContext)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_attachmentService = attachmentService;
 			_configuration = configuration;
 			_httpContextAccessor = httpContextAccessor;
+			_hubContext = hubContext;
 		}
 
 		public async Task<Result<TweetToReturnDto>> CreateTweetAsync(CreateTweetDto tweetDto)
@@ -82,6 +89,30 @@ namespace Tweeter.Core.Application.Services.Community
 			{
 				return Result<TweetToReturnDto>.Fail("Failed to send message", ErrorType.Unexpected);
 			}
+
+
+			#region Send Notification
+
+			var notification = new Notification()
+			{
+				CreatedAt = DateTime.UtcNow,
+				UserId = userId,
+				NotificationType = NotificationType.Follow,
+				TweetId = mappedTweet.Id,
+			};
+
+			await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+
+			var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!notificationCompleted)
+			{
+				return Result<TweetToReturnDto>.Fail("Failed to create notification", ErrorType.Unexpected);
+			}
+
+			await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"{mappedTweet.User.FullName} Post New Tweet");
+
+			#endregion
 
 			var tweetToReturn = _mapper.Map<TweetToReturnDto>(mappedTweet);
 
@@ -337,6 +368,29 @@ namespace Tweeter.Core.Application.Services.Community
 				return Result<string>.Fail("Failed to like tweet", ErrorType.Unexpected);
 			}
 
+			#region Send Notification
+
+			var notification = new Notification()
+			{
+				CreatedAt = DateTime.UtcNow,
+				UserId = userId,
+				NotificationType = NotificationType.Follow,
+				TweetId = tweet.Id,
+			};
+
+			await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+
+			var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!notificationCompleted)
+			{
+				return Result<string>.Fail("Failed to create notification", ErrorType.Unexpected);
+			}
+
+			await _hubContext.Clients.Users(tweet.UserId).SendAsync("ReceiveNotification", $"{tweet.User.FullName} Like Your Tweet");
+
+			#endregion
+
 			return Result<string>.Success("Tweet liked successfully.");
 		}
 
@@ -430,6 +484,32 @@ namespace Tweeter.Core.Application.Services.Community
 				return Result<RetweetToReturnDto>.Fail("Failed to retweet", ErrorType.Unexpected);
 			}
 
+			#region Send Notification
+
+			var notification = new Notification()
+			{
+				CreatedAt = DateTime.UtcNow,
+				UserId = userId,
+				NotificationType = NotificationType.Follow,
+				RetweetId = retweet.Id,
+			};
+
+			await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+
+			var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!notificationCompleted)
+			{
+				return Result<RetweetToReturnDto>.Fail("Failed to create notification", ErrorType.Unexpected);
+			}
+
+			await _hubContext.Clients.Users(tweet.UserId).SendAsync("ReceiveNotification", $"{retweet.User.FullName} Retweet Your Tweet");
+
+			await _hubContext.Clients.AllExcept(tweet.UserId).SendAsync("ReceiveNotification", $"{retweet.User.FullName} Retweet a Tweet");
+
+
+			#endregion
+
 			var retweetToReturn = _mapper.Map<RetweetToReturnDto>(retweet);
 
 			return Result<RetweetToReturnDto>.Success(retweetToReturn);
@@ -487,59 +567,82 @@ namespace Tweeter.Core.Application.Services.Community
 			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
 
 			var retweet = await retweetRepo.GetAsync(retweetId);
-			
+
 			if (retweet is null)
 			{
 				return Result<string>.Fail("Retweet not found.", ErrorType.NotFound);
 			}
-			
+
 			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
-			
+
 			if (string.IsNullOrEmpty(userId))
 			{
 				return Result<string>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
 			}
-			
+
 			if (retweet.Likes.Any(l => l.UserId == userId))
 			{
 				await UnlikeRetweetAsync(retweetId);
 				// If the user already liked the retweet, we remove the like and return a success message.
 				return Result<string>.Success("Retweet unliked successfully.");
 			}
-			
+
 			retweet.Likes.Add(new RetweetLikes { UserId = userId, RetweetId = retweetId });
-			
+
 			retweetRepo.Update(retweet);
-			
+
 			var completed = await _unitOfWork.CompleteAsync() > 0;
-			
+
 			if (!completed)
 			{
 				return Result<string>.Fail("Failed to like retweet", ErrorType.Unexpected);
 			}
-			
+
+			#region Send Notification
+
+			var notification = new Notification()
+			{
+				CreatedAt = DateTime.UtcNow,
+				UserId = userId,
+				NotificationType = NotificationType.Follow,
+				RetweetId = retweet.Id,
+			};
+
+			await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+
+			var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!notificationCompleted)
+			{
+				return Result<string>.Fail("Failed to create notification", ErrorType.Unexpected);
+			}
+			await _hubContext.Clients.Users(retweet.UserId).SendAsync("ReceiveNotification", $"{retweet.User.FullName} Like Your Retweet");
+
+
+			#endregion
+
 			return Result<string>.Success("Retweet liked successfully.");
 		}
 		private async Task<Result<string>> UnlikeRetweetAsync(int retweetId)
 		{
 			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
-			
+
 			var retweet = await retweetRepo.GetAsync(retweetId);
-			
+
 			if (retweet is null)
 			{
 				return Result<string>.Fail("Retweet not found.", ErrorType.NotFound);
 			}
-			
+
 			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
-			
+
 			if (string.IsNullOrEmpty(userId))
 			{
 				return Result<string>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
 			}
-			
+
 			var like = retweet.Likes.FirstOrDefault(l => l.UserId == userId);
-			
+
 			if (like is null)
 			{
 				await LikeRetweetAsync(retweetId);
@@ -552,12 +655,12 @@ namespace Tweeter.Core.Application.Services.Community
 			retweetRepo.Update(retweet);
 
 			var completed = await _unitOfWork.CompleteAsync() > 0;
-			
+
 			if (!completed)
 			{
 				return Result<string>.Fail("Failed to unlike retweet", ErrorType.Unexpected);
 			}
-			
+
 			return Result<string>.Success("Retweet unliked successfully.");
 		}
 	}
