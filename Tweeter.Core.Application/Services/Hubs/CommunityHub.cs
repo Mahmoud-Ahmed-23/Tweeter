@@ -4,7 +4,7 @@ using System.Security.Claims;
 using Tweeter.Core.Application.Abstraction.Dtos.Community;
 using Tweeter.Core.Application.Abstraction.Services.Community;
 
-public class TweetHub(ICommunityService _tweetService, ILogger<TweetHub> _logger) : Hub
+public class CommunityHub(ICommunityService _tweetService, ILogger<CommunityHub> _logger) : Hub
 {
 	public async Task SendTweet(CreateTweetDto createTweetDto)
 	{

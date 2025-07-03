@@ -60,7 +60,7 @@ namespace Tweeter.APIs
             
             app.MapHub<ChatHub>("/hubs/chat");
             app.MapHub<NotificationHub>("/hubs/notification");
-            app.MapHub<TweetHub>("/hubs/Tweet");
+            app.MapHub<CommunityHub>("/hubs/community");
 
             app.Run();
         }
