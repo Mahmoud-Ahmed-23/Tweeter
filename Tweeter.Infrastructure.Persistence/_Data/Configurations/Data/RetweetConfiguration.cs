@@ -22,6 +22,9 @@ namespace Tweeter.Infrastructure.Persistence._Data.Configurations.Data
                   .WithMany(t => t.Retweets)
                   .HasForeignKey(r => r.OriginalTweetId)
                   .OnDelete(DeleteBehavior.Cascade);
-        }
+
+			builder.Property(t => t.NormalizedComment)
+				.HasComputedColumnSql("UPPER(Comment)", stored: true);
+		}
     }
 }

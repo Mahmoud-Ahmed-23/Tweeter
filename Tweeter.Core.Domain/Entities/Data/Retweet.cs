@@ -1,4 +1,5 @@
-﻿using Tweeter.Core.Domain.Common;
+﻿using Microsoft.EntityFrameworkCore;
+using Tweeter.Core.Domain.Common;
 using Tweeter.Core.Domain.Entities.Identity;
 
 namespace Tweeter.Core.Domain.Entities.Data
@@ -9,6 +10,7 @@ namespace Tweeter.Core.Domain.Entities.Data
 		public int OriginalTweetId { get; set; }
 		public DateTime RetweetedAt { get; set; }
 		public string? Comment { get; set; }
+		public string? NormalizedComment { get; set; }
 
 		// Navigation properties
 		public virtual ApplicationUser User { get; set; }

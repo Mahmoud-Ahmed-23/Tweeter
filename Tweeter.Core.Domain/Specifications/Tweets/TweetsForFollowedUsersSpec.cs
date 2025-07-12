@@ -9,8 +9,9 @@ namespace Tweeter.Core.Domain.Specifications.Tweets
 {
 	public class TweetsForFollowedUsersSpec : BaseSpecification<Tweet, int>
 	{
-		public TweetsForFollowedUsersSpec(string userId, int pageIndex, int pageSize)
-			: base(p => p.User.Followers.Any(p => p.FollowerId == userId))
+		public TweetsForFollowedUsersSpec(string userId, int pageIndex, int pageSize, string? search)
+			: base(p => p.User.Followers.Any(p => p.FollowerId == userId) &&
+			(string.IsNullOrEmpty(search) || p.NormalizedContent!.Contains(search.ToUpper())))
 		{
 			AddIncludes();
 			AddOrderByDescending(p => p.CreatedOn);

@@ -9,8 +9,11 @@ namespace Tweeter.Core.Domain.Specifications.Retweets
 {
 	public class RetweetsForFollowedUsersSpec : BaseSpecification<Retweet, int>
 	{
-		public RetweetsForFollowedUsersSpec(string userId, int pageIndex, int pageSize)
-			: base(p => p.User.Followers.Any(p => p.FollowerId == userId))
+		public RetweetsForFollowedUsersSpec(string userId, int pageIndex, int pageSize, string? search)
+			: base(p => p.User.Followers.Any(p => p.FollowerId == userId)
+			&&
+			(string.IsNullOrEmpty(search) || p.NormalizedComment!.Contains(search.ToUpper()) 
+			|| p.OriginalTweet.NormalizedContent!.Contains(search.ToUpper())))
 		{
 			AddIncludes();
 			AddOrderByDescending(p => p.CreatedOn);

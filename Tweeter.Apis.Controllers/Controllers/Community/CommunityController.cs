@@ -108,5 +108,13 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 			var result = await mediator.Send(new GetRetweetQuery(id));
 			return NewResult(result);
 		}
+
+		[Authorize]
+		[HttpPut(Router.CommunityRouting.UpdateRetweet)]
+		public async Task<ActionResult<RetweetToReturnDto>> UpdateRetweet([FromRoute] int retweetId, [FromBody] string content)
+		{
+			var result = await mediator.Send(new UpdateRetweetCommand(retweetId, content));
+			return NewResult(result);
+		}
 	}
 }

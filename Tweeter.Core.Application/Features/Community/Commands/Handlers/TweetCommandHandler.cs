@@ -22,7 +22,8 @@ namespace Tweeter.Core.Application.Features.Community.Commands.Handlers
 		IRequestHandler<LikeTweetCommand, Response<string>>,
 		IRequestHandler<RetweetCommand, Response<RetweetToReturnDto>>,
 		IRequestHandler<UnRetweetCommand, Response<string>>,
-		IRequestHandler<LikeRetweetCommand, Response<string>>
+		IRequestHandler<LikeRetweetCommand, Response<string>>,
+		IRequestHandler<UpdateRetweetCommand, Response<RetweetToReturnDto>>
 	{
 		private readonly ICommunityService _tweetService;
 
@@ -77,6 +78,13 @@ namespace Tweeter.Core.Application.Features.Community.Commands.Handlers
 		public async Task<Response<string>> Handle(LikeRetweetCommand request, CancellationToken cancellationToken)
 		{
 			var result = await _tweetService.LikeRetweetAsync(request.RetweetId);
+
+			return await HandleResultAsync(Task.FromResult(result));
+		}
+
+		public async Task<Response<RetweetToReturnDto>> Handle(UpdateRetweetCommand request, CancellationToken cancellationToken)
+		{
+			var result = await _tweetService.UpdateRetweetAsync(request.RetweetId, request.Content);
 
 			return await HandleResultAsync(Task.FromResult(result));
 		}
