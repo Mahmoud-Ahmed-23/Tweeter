@@ -9,7 +9,8 @@ namespace Tweeter.Core.Domain.Specifications.Tweets
 {
 	public class TweetsForAllSpec : BaseSpecification<Tweet, int>
 	{
-		public TweetsForAllSpec(int pageIndex, int pageSize)
+		public TweetsForAllSpec(int pageIndex, int pageSize, string? search)
+			: base(p => (string.IsNullOrEmpty(search) || p.NormalizedContent!.Contains(search.ToUpper())))
 		{
 			AddIncludes();
 			AddOrderByDescending(p => p.CreatedOn);

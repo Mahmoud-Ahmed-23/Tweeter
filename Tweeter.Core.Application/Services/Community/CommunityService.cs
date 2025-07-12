@@ -151,7 +151,7 @@ namespace Tweeter.Core.Application.Services.Community
 
 		public async Task<Result<Pagination<TweetToReturnDto>>> GetAllTweetsAsync(SpecParams specParams)
 		{
-			var specs = new TweetsForAllSpec(specParams.PageIndex, specParams.PageSize);
+			var specs = new TweetsForAllSpec(specParams.PageIndex, specParams.PageSize, specParams.Search);
 
 			var repo = _unitOfWork.GetRepository<Tweet, int>();
 
@@ -205,7 +205,7 @@ namespace Tweeter.Core.Application.Services.Community
 
 		private async Task<IEnumerable<Tweet>> TweetsForFollowedUsers(string userId, SpecParams specParams)
 		{
-			var specs = new TweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize);
+			var specs = new TweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize, specParams.Search);
 
 			var repo = _unitOfWork.GetRepository<Tweet, int>();
 
@@ -222,7 +222,7 @@ namespace Tweeter.Core.Application.Services.Community
 
 		private async Task<IEnumerable<Retweet>> RetweetsForFollowedUsers(string userId, SpecParams specParams)
 		{
-			var specs = new RetweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize);
+			var specs = new RetweetsForFollowedUsersSpec(userId, specParams.PageIndex, specParams.PageSize, specParams.Search);
 
 			var repo = _unitOfWork.GetRepository<Retweet, int>();
 
