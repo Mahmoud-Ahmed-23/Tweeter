@@ -6,35 +6,37 @@ using Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository;
 
 namespace Tweeter.Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork
-    {
-        private readonly TweeterDbContext _tweeterDbContext;
+	public class UnitOfWork : IUnitOfWork
+	{
+		private readonly TweeterDbContext _tweeterDbContext;
 
-        private readonly ConcurrentDictionary<string, object> _repositories;
-
-        public UnitOfWork(TweeterDbContext tweeterDbContext)
-        {
-            _tweeterDbContext = tweeterDbContext;
-            _repositories = new ConcurrentDictionary<string, object>();
-        }
+		private readonly ConcurrentDictionary<string, object> _repositories;
 
 
-        public IGenericRepository<TEntity, Tkey> GetRepository<TEntity, Tkey>()
-            where TEntity : BaseEntity<Tkey>
-            where Tkey : IEquatable<Tkey>
-        {
-            return (IGenericRepository<TEntity, Tkey>)_repositories.GetOrAdd(typeof(TEntity).Name, new GenericRepository<TEntity, Tkey>(_tweeterDbContext));
-        }
+
+		public UnitOfWork(TweeterDbContext tweeterDbContext)
+		{
+			_tweeterDbContext = tweeterDbContext;
+			_repositories = new ConcurrentDictionary<string, object>();
+		}
 
 
-        public async Task<int> CompleteAsync()
-        {
-            return await _tweeterDbContext.SaveChangesAsync();
-        }
+		public IGenericRepository<TEntity, Tkey> GetRepository<TEntity, Tkey>()
+			where TEntity : BaseEntity<Tkey>
+			where Tkey : IEquatable<Tkey>
+		{
+			return (IGenericRepository<TEntity, Tkey>)_repositories.GetOrAdd(typeof(TEntity).Name, new GenericRepository<TEntity, Tkey>(_tweeterDbContext));
+		}
 
-        public ValueTask DisposeAsync()
-        {
-            return _tweeterDbContext.DisposeAsync();
-        }
-    }
+
+		public async Task<int> CompleteAsync()
+		{
+			return await _tweeterDbContext.SaveChangesAsync();
+		}
+
+		public ValueTask DisposeAsync()
+		{
+			return _tweeterDbContext.DisposeAsync();
+		}
+	}
 }

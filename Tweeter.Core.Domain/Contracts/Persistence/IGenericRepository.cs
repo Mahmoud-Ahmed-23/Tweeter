@@ -6,10 +6,10 @@ namespace Tweeter.Core.Domain.Contracts.Persistence
     public interface IGenericRepository<TEntity, TKey>
        where TEntity : BaseEntity<TKey> where TKey : IEquatable<TKey>
     {
-        Task<IEnumerable<TEntity>> GetAllAsync(bool WithTraching = false);
+        Task<IEnumerable<TEntity>> GetAllAsync(bool WithTracking = false);
 
-        Task<TEntity?> GetAsync(TKey id);
-
+        IQueryable<TEntity> GetAllQueryableAsync(bool WithTracking = false);
+		Task<TEntity?> GetAsync(TKey id);
 
 
 
@@ -23,7 +23,9 @@ namespace Tweeter.Core.Domain.Contracts.Persistence
 
         Task AddAsync(TEntity entity);
 
-        void Update(TEntity entity);
+		Task AddRangeAsync(IEnumerable<TEntity> entities);
+
+		void Update(TEntity entity);
 
         void Delete(TEntity entity);
         void DeleteRange(IEnumerable<TEntity> entities);

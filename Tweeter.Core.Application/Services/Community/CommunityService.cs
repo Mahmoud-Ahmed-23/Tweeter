@@ -36,6 +36,7 @@ namespace Tweeter.Core.Application.Services.Community
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IConfiguration _configuration;
 		private readonly IHubContext<NotificationHub> _hubContext;
+		private readonly UserManager<ApplicationUser> _userManager;
 
 		public CommunityService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IAttachmentService attachmentService, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IHubContext<NotificationHub> hubContext)
 		{
@@ -45,12 +46,13 @@ namespace Tweeter.Core.Application.Services.Community
 			_configuration = configuration;
 			_httpContextAccessor = httpContextAccessor;
 			_hubContext = hubContext;
+			_userManager = userManager;
 		}
 
 		public async Task<Result<TweetToReturnDto>> CreateTweetAsync(CreateTweetDto tweetDto)
 		{
 
-			if (tweetDto.Content is null || tweetDto.ImageUrl is null)
+			if (tweetDto.Content is null && tweetDto.ImageUrl is null)
 			{
 				return Result<TweetToReturnDto>.Fail("Content and ImageUrl cannot be null.", ErrorType.BadRequest);
 			}
@@ -91,28 +93,49 @@ namespace Tweeter.Core.Application.Services.Community
 			}
 
 
+
 			#region Send Notification
 
-			var notification = new Notification()
+			var followersRepo = _unitOfWork.GetRepository<Follow, int>();
+
+			var followers = await followersRepo.GetAllQueryableAsync()
+				.Where(f => f.FolloweeId == userId)
+				.Select(f => f.FollowerId)
+				.ToListAsync();
+
+			if (followers.Count > 0)
 			{
-				CreatedAt = DateTime.UtcNow,
-				UserId = userId,
-				NotificationType = NotificationType.Follow,
-				TweetId = mappedTweet.Id,
-			};
+				var notificationRepo = _unitOfWork.GetRepository<Notification, int>();
 
-			await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+				var notifications = followers.Select(followerId => new Notification
+				{
+					TriggerUserId = userId,
+					UserId = followerId,
+					CreatedAt = DateTime.UtcNow,
+					TweetId = mappedTweet.Id
+				}).ToList();
 
-			var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
 
-			if (!notificationCompleted)
-			{
-				return Result<TweetToReturnDto>.Fail("Failed to create notification", ErrorType.Unexpected);
+				await notificationRepo.AddRangeAsync(notifications);
+
+				var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+
+				if (!notificationCompleted)
+				{
+					return Result<TweetToReturnDto>.Fail("Failed to create notifications", ErrorType.Unexpected);
+				}
+
+				var username = (await _userManager.FindByIdAsync(userId))?.FullName;
+
+				foreach (var followerId in followers)
+				{
+					await _hubContext.Clients
+						.User(followerId)
+						.SendAsync("ReceiveNotification", $"{username} posted a new tweet");
+				}
 			}
-
-			await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"{mappedTweet.User.FullName} Post New Tweet");
-
 			#endregion
+
 
 			var tweetToReturn = _mapper.Map<TweetToReturnDto>(mappedTweet);
 
@@ -373,7 +396,8 @@ namespace Tweeter.Core.Application.Services.Community
 			var notification = new Notification()
 			{
 				CreatedAt = DateTime.UtcNow,
-				UserId = userId,
+				TriggerUserId = userId, // The user who liked the tweet
+				UserId = tweet.UserId,
 				NotificationType = NotificationType.Follow,
 				TweetId = tweet.Id,
 			};
@@ -486,28 +510,44 @@ namespace Tweeter.Core.Application.Services.Community
 
 			#region Send Notification
 
-			var notification = new Notification()
+			var followersRepo = _unitOfWork.GetRepository<Follow, int>();
+
+			var followers = await followersRepo.GetAllQueryableAsync()
+				.Where(f => f.FolloweeId == userId)
+				.Select(f => f.FollowerId)
+				.ToListAsync();
+
+			if (followers.Count > 0)
 			{
-				CreatedAt = DateTime.UtcNow,
-				UserId = userId,
-				NotificationType = NotificationType.Follow,
-				RetweetId = retweet.Id,
-			};
+				var notificationRepo = _unitOfWork.GetRepository<Notification, int>();
 
-			await _unitOfWork.GetRepository<Notification, int>().AddAsync(notification);
+				var notifications = followers.Select(followerId => new Notification
+				{
+					TriggerUserId = userId,
+					UserId = followerId,
+					CreatedAt = DateTime.UtcNow,
+					RetweetId = retweet.Id
+				}).ToList();
 
-			var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
 
-			if (!notificationCompleted)
-			{
-				return Result<RetweetToReturnDto>.Fail("Failed to create notification", ErrorType.Unexpected);
+				await notificationRepo.AddRangeAsync(notifications);
+
+				var notificationCompleted = await _unitOfWork.CompleteAsync() > 0;
+
+				if (!notificationCompleted)
+				{
+					return Result<RetweetToReturnDto>.Fail("Failed to create notifications", ErrorType.Unexpected);
+				}
+
+				var username = (await _userManager.FindByIdAsync(userId))?.FullName;
+
+				foreach (var followerId in followers)
+				{
+					await _hubContext.Clients
+						.User(followerId)
+						.SendAsync("ReceiveNotification", $"{username} posted a new tweet");
+				}
 			}
-
-			await _hubContext.Clients.Users(tweet.UserId).SendAsync("ReceiveNotification", $"{retweet.User.FullName} Retweet Your Tweet");
-
-			await _hubContext.Clients.AllExcept(tweet.UserId).SendAsync("ReceiveNotification", $"{retweet.User.FullName} Retweet a Tweet");
-
-
 			#endregion
 
 			var retweetToReturn = _mapper.Map<RetweetToReturnDto>(retweet);
@@ -603,7 +643,8 @@ namespace Tweeter.Core.Application.Services.Community
 			var notification = new Notification()
 			{
 				CreatedAt = DateTime.UtcNow,
-				UserId = userId,
+				UserId = retweet.UserId,
+				TriggerUserId = userId,
 				NotificationType = NotificationType.Follow,
 				RetweetId = retweet.Id,
 			};
@@ -662,6 +703,40 @@ namespace Tweeter.Core.Application.Services.Community
 			}
 
 			return Result<string>.Success("Retweet unliked successfully.");
+		}
+
+		public async Task<Result<RetweetToReturnDto>> UpdateRetweetAsync(int retweetId, string content)
+		{
+			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
+
+			var retweet = await retweetRepo.GetAsync(retweetId);
+
+			if (retweet is null)
+			{
+				return Result<RetweetToReturnDto>.Fail("Retweet not found.", ErrorType.NotFound);
+			}
+
+			var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+
+			if (string.IsNullOrEmpty(userId) || userId != retweet.UserId)
+			{
+				return Result<RetweetToReturnDto>.Fail("User ID cannot be null or empty.", ErrorType.Unauthorized);
+			}
+
+			retweet.Comment = content;
+
+			retweetRepo.Update(retweet);
+
+			var completed = await _unitOfWork.CompleteAsync() > 0;
+
+			if (!completed)
+			{
+				return Result<RetweetToReturnDto>.Fail("Failed to update retweet", ErrorType.Unexpected);
+			}
+
+			var retweetToReturn = _mapper.Map<RetweetToReturnDto>(retweet);
+
+			return Result<RetweetToReturnDto>.Success(retweetToReturn);
 		}
 	}
 }

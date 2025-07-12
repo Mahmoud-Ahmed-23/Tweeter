@@ -7,7 +7,7 @@ using Tweeter.Infrastructure.Persistence._Data;
 
 namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
 {
-    public class GenericRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey>
+	public class GenericRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey>
        where TEntity : BaseEntity<TKey> where TKey : IEquatable<TKey>
 
     {
@@ -21,9 +21,9 @@ namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
 
 
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(bool WithTraching = false)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(bool WithTracking = false)
         {
-            return WithTraching ? await _dbContext.Set<TEntity>().ToListAsync() : await _dbContext.Set<TEntity>().AsNoTracking().ToListAsync();
+            return WithTracking ? await _dbContext.Set<TEntity>().ToListAsync() : await _dbContext.Set<TEntity>().AsNoTracking().ToListAsync();
         }
 
 
@@ -81,6 +81,16 @@ namespace Tweeter.Infrastructure.Persistence.Repositories.Generic_Repository
         {
             return SpecificationEvaluator<TEntity, TKey>.GetQuery(_dbContext.Set<TEntity>(), Spec);
         }
-    }
+
+		public IQueryable<TEntity> GetAllQueryableAsync(bool WithTracking = false)
+		{
+			return  WithTracking ? _dbContext.Set<TEntity>() : _dbContext.Set<TEntity>().AsNoTracking();
+		}
+
+		public async Task AddRangeAsync(IEnumerable<TEntity> entities)
+		{
+			await _dbContext.Set<TEntity>().AddRangeAsync(entities);
+		}
+	}
 
 }

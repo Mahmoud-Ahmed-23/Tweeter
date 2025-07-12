@@ -8,7 +8,7 @@ namespace Tweeter.Core.Domain.Contracts.Persistence
         IGenericRepository<TEntity, Tkey> GetRepository<TEntity, Tkey>() where TEntity : BaseEntity<Tkey>
             where Tkey : IEquatable<Tkey>;
 
-        Task<int> CompleteAsync();
+		Task<int> CompleteAsync();
 
     }
 }

@@ -86,7 +86,7 @@
 			public const string Retweet = prefix + "/Retweet/{id}";
 			public const string UnRetweet = prefix + "/UnRetweet/{id}";
 			public const string GetRetweet = prefix + "/GetRetweet/{id}";
-
+			public const string UpdateRetweet = prefix + "/UpdateRetweet/{retweetId}";
 
 
 		}

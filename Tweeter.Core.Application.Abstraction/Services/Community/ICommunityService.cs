@@ -32,6 +32,8 @@ namespace Tweeter.Core.Application.Abstraction.Services.Community
 
 		Task<Result<RetweetToReturnDto>> RetweetAsync(int tweetId, string? content);
 		Task<Result<RetweetToReturnDto>> GetRetweetAsync(int tweetId);
+
+		Task<Result<RetweetToReturnDto>> UpdateRetweetAsync(int retweetId, string content);
 		//Task<Result<Pagination<RetweetToReturnDto>>> GetRetweetsByUserIdAsync(string userId, SpecParams specParams);
 		//Task<Result<Pagination<RetweetToReturnDto>>> GetRetweetsByTweetIdAsync(int tweetId, SpecParams specParams);
 
