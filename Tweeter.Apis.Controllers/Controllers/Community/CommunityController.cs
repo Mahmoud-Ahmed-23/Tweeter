@@ -12,6 +12,7 @@ using Tweeter.Core.Application.Features.Community.Commands.Models;
 using Tweeter.Core.Application.Features.Community.Queries.Models;
 using Tweeter.Core.Domain.AppMateData;
 using Tweeter.Core.Application.Abstraction.Dtos.Community;
+using Tweeter.Apis.Controllers.Filters;
 
 namespace Tweeter.Apis.Controllers.Controllers.Community
 {
@@ -55,6 +56,7 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 			return NewResult(result);
 		}
 
+		[Cached(600)]
 		[HttpGet(Router.CommunityRouting.GetAllTweets)]
 		public async Task<ActionResult<Pagination<TweetToReturnDto>>> GetAllTweets([FromQuery] SpecParams specParams)
 		{
@@ -62,6 +64,7 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 			return NewResult(result);
 		}
 
+		[Cached(600)]
 		[Authorize]
 		[HttpGet(Router.CommunityRouting.GetTweetsForFollowedUsers)]
 		public async Task<ActionResult<Pagination<TweetToReturnDto>>> GetTweetsForFollowedUsers([FromQuery] SpecParams specParams)
