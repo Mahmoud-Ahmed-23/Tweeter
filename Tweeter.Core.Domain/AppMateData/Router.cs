@@ -24,6 +24,7 @@
 			public const string ChangePassword = prefix + "/ChangePassword";
 			public const string Logout = prefix + "/Logout";
 			public const string GetCurrentUser = prefix + "/GetCurrentUser";
+			public const string GetUserProfile = prefix + "/GetUserProfile";
 			public const string RefreshToken = prefix + "/RefreshToken";
 			public const string RevokeRefreshToken = prefix + "/RevokeRefreshToken";
 

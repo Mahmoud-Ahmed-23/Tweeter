@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -6,13 +7,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Tweeter.Core.Application.Abstraction.Common;
+using Tweeter.Core.Application.Abstraction.Dtos.Community;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.RefreshToken;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.ReturnedDto;
 using Tweeter.Core.Application.Abstraction.Services.Identity.Authentication;
+using Tweeter.Core.Domain.Contracts.Persistence;
+using Tweeter.Core.Domain.Entities.Data;
 using Tweeter.Core.Domain.Entities.Identity;
+using Tweeter.Core.Domain.Specifications.Retweets;
+using Tweeter.Core.Domain.Specifications.Tweets;
 using Tweeter.Shared.Results;
 using Tweeter.Shared.Settings;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tweeter.Core.Application.Services.Identity.Authentication
 {
@@ -22,13 +30,17 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly JwtSettings _jwtSettings;
 		private readonly IConfiguration _configuration;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IMapper _mapper;
 
-		public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtSettings jwtSettings, IConfiguration configuration)
+		public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtSettings jwtSettings, IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_jwtSettings = jwtSettings;
 			_configuration = configuration;
+			_unitOfWork = unitOfWork;
+			_mapper = mapper;
 		}
 
 		public async Task<Result<ChangePasswordToReturn>> ChangePasswordAsync(ClaimsPrincipal claims, ChangePasswordDto changePasswordDto)
@@ -400,6 +412,72 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 				Token = await GenerateToken(user)
 			});
 
+		}
+
+		public async Task<Result<UserProfileToReturn>> GetUserProfile(SpecParams specParams)
+		{
+			var user = await _userManager.FindByIdAsync(specParams.Userid!);
+
+			if (user is null)
+				return Result<UserProfileToReturn>.Fail("User not found", ErrorType.NotFound);
+
+			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
+									? string.Empty
+									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+
+			#region Tweets
+
+			var tweetSpec = new TweetsForUserSpec(specParams.Userid!, specParams.PageIndex, specParams.PageSize);
+
+			var tweetRepo = _unitOfWork.GetRepository<Tweet, int>();
+
+			var tweets = await tweetRepo.GetAllWithSpecAsync(tweetSpec);
+
+			var countSpec = new TweetsForUserCountSpec(specParams.Userid!);
+
+			var tweetsTotalCount = await tweetRepo.GetCountAsync(countSpec);
+
+			var tweetsData = _mapper.Map<List<RetweetToReturnDto>>(tweets);
+
+			#endregion
+
+
+			#region Retweets
+
+			var retweetSpec = new RetweetsForUserSpec(specParams.Userid!, specParams.PageIndex, specParams.PageSize);
+
+			var retweetRepo = _unitOfWork.GetRepository<Retweet, int>();
+
+			var retweets = await retweetRepo.GetAllWithSpecAsync(retweetSpec);
+
+			var retweetsCountSpec = new RetweetsForUserCountSpec(specParams.Userid!);
+
+			var retweetsTotalCount = await retweetRepo.GetCountAsync(retweetsCountSpec);
+
+			var retweetsData = _mapper.Map<List<RetweetToReturnDto>>(retweets);
+
+			#endregion
+
+			var posts = tweetsData;
+
+			posts.AddRange(retweetsData);
+
+			posts = posts.OrderByDescending(p => p.CreatedOn).ToList();
+
+			var postsCount = tweetsTotalCount + retweetsTotalCount;
+
+			var data = new UserProfileToReturn
+			{
+				Id = user.Id,
+				FullName = user.FullName,
+				ProfilePictureUrl = profilePictureUrl,
+				CreatedAt = user.CreatedAt,
+				FollowersCount = user.Followers.Count,
+				FollowingCount = user.Following.Count,
+				Posts = posts
+			};
+
+			return Result<UserProfileToReturn>.Success(data);
 		}
 	}
 }

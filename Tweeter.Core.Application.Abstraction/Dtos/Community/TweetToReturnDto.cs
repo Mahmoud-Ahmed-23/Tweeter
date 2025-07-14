@@ -10,20 +10,22 @@ namespace Tweeter.Core.Application.Abstraction.Dtos.Community
 	{
 		public int TweetId { get; set; }
 
-		public string Content { get; set; }
+		public string TweetContent { get; set; }
 
-		public string? ImageUrl { get; set; }
+		public string? TweetImageUrl { get; set; }
 
-		public string UserName { get; set; }
+		public string TweetUserName { get; set; }
 
-		public string UserProfilePictureUrl { get; set; }
+		public string TweetUserId { get; set; }
+
+		public string TweetUserProfilePictureUrl { get; set; }
 
 		public DateTime CreatedOn { get; set; }
 
-		public int LikeCount { get; set; }
+		public int RetweetLikeCount { get; set; }
 
 		public int RetweetCount { get; set; }
 
-		public int ReplyCount { get; set; }
+		public int RetweetReplyCount { get; set; }
 	}
 }

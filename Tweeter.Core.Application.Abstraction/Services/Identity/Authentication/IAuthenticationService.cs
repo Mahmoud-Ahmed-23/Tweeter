@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Tweeter.Core.Application.Abstraction.Common;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.Account;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.RefreshToken;
 using Tweeter.Core.Application.Abstraction.Dtos.Identity.ReturnedDto;
@@ -16,6 +17,8 @@ namespace Tweeter.Core.Application.Abstraction.Services.Identity.Authentication
 		Task<Result<SuccessDto>> LougOutAsync(ClaimsPrincipal claimsPrincipal);
 
 		Task<Result<ReturnUserDto>> GetCurrentUser(ClaimsPrincipal claimsPrincipal);
+
+		Task<Result<UserProfileToReturn>> GetUserProfile(SpecParams specParams);
 
 		Task<Result<ReturnUserDto>> GetRefreshToken(RefreshDto refreshDto, CancellationToken cancellationToken);
 		Task<Result<bool>> RevokeRefreshToken(RefreshDto refreshDto, CancellationToken cancellationToken);
