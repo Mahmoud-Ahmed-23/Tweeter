@@ -88,7 +88,7 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 
 		[Authorize]
 		[HttpPost(Router.CommunityRouting.Retweet)]
-		public async Task<ActionResult<RetweetToReturnDto>> Retweet([FromRoute] int id, [FromBody] string? content)
+		public async Task<ActionResult<RetweetToReturnDto>> Retweet([FromRoute] int id, [FromForm] string? content)
 		{
 			var result = await mediator.Send(new RetweetCommand(id, content));
 			return NewResult(result);
@@ -111,7 +111,7 @@ namespace Tweeter.Apis.Controllers.Controllers.Community
 
 		[Authorize]
 		[HttpPut(Router.CommunityRouting.UpdateRetweet)]
-		public async Task<ActionResult<RetweetToReturnDto>> UpdateRetweet([FromRoute] int retweetId, [FromBody] string content)
+		public async Task<ActionResult<RetweetToReturnDto>> UpdateRetweet([FromRoute] int retweetId, [FromForm] string content)
 		{
 			var result = await mediator.Send(new UpdateRetweetCommand(retweetId, content));
 			return NewResult(result);
