@@ -108,7 +108,7 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 
 			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
 		? string.Empty
-		: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+		: $"{_configuration["Urls:TwitterUrl"]}/{user.ProfilePictureUrl}";
 
 			var returnUser = Result<ReturnUserDto>.Success(new ReturnUserDto
 			{
@@ -399,7 +399,7 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 
 			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
 									? string.Empty
-									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+									: $"{_configuration["Urls:TwitterUrl"]}/{user.ProfilePictureUrl}";
 
 			return Result<ReturnUserDto>.Success(new ReturnUserDto
 			{
@@ -423,7 +423,7 @@ namespace Tweeter.Core.Application.Services.Identity.Authentication
 
 			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
 									? string.Empty
-									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+									: $"{_configuration["Urls:TwitterUrl"]}/{user.ProfilePictureUrl}";
 
 			#region Tweets
 

@@ -16,7 +16,7 @@ namespace Tweeter.Core.Application.Mapping.RetweetResolvers
 		{
 			if (!string.IsNullOrEmpty(source.OriginalTweet.ImageUrl))
 			{
-				return $"{configuration["Urls:ApiBaseUrl"]}/{source.OriginalTweet.ImageUrl}";
+				return $"{configuration["Urls:"]}/{source.OriginalTweet.ImageUrl}";
 			}
 			return string.Empty;
 		}

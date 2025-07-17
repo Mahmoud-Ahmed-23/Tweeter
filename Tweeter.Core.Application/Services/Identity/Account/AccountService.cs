@@ -106,7 +106,7 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 
 			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
 									? string.Empty
-									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+									: $"{_configuration["Urls:TwitterUrl"]}/{user.ProfilePictureUrl}";
 
 			await SendCodeByEmailAsync(new ForgetPasswordByEmailDto(registerDto.Email));
 
@@ -212,7 +212,7 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 
 			var profilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
 									? string.Empty
-									: $"{_configuration["Urls:ApiBaseUrl"]}/{user.ProfilePictureUrl}";
+									: $"{_configuration["Urls:TwitterUrl"]}/{user.ProfilePictureUrl}";
 
 			var returnUserDto = new ReturnUserDto
 			{
@@ -224,6 +224,29 @@ namespace Tweeter.Core.Application.Services.Identity.Account
 			};
 
 			return Result<ReturnUserDto>.Success(returnUserDto);
+		}
+
+		public async Task<Result<string>> ConfirmUserEmail(string email, int code)
+		{
+			var user = await _userManager.FindByEmailAsync(email);
+
+			if (user is null)
+				return Result<string>.Fail("User Not Found", ErrorType.NotFound);
+
+			if (user.ResetCodeExpiry < DateTime.UtcNow)
+				return Result<string>.Fail("Confirmation Code Expired", ErrorType.BadRequest);
+
+			if (user.ResetCode != code)
+				return Result<string>.Fail("Invalid Confirmation Code", ErrorType.BadRequest);
+
+			user.EmailConfirmed = true;
+
+			await _userManager.UpdateAsync(user);
+
+			if (!user.EmailConfirmed)
+				return Result<string>.Fail("Email Confirmation Failed", ErrorType.BadRequest);
+
+			return Result<string>.Success("Email Confirmed Successfully");
 		}
 	}
 }

@@ -19,7 +19,7 @@ namespace Tweeter.Core.Application.Mapping.RetweetResolvers
 		{
 			if (!string.IsNullOrEmpty(source.OriginalTweet.User?.ProfilePictureUrl))
 			{
-				return $"{configuration["Urls:ApiBaseUrl"]}/{source.OriginalTweet.User.ProfilePictureUrl}";
+				return $"{configuration["Urls:TwitterUrl"]}/{source.OriginalTweet.User.ProfilePictureUrl}";
 			}
 
 			return string.Empty;

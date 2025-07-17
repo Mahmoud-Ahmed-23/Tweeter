@@ -17,14 +17,16 @@ namespace Tweeter.Infrastructure.AttachementServices
 			var extention = Path.GetExtension(file.FileName);
 
 			if (!_allowedExtentions.Contains(extention))
-				return null;
+				return "Invalid file type. Allowed types are: " + string.Join(", ", _allowedExtentions);
+			//return null;
 
 			if (file.Length > _allowedMaxSize)
-				return null;
+				return "File size exceeds the allowed limit of 2MB.";
+			//return null;
 
 			var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", folderName);
 			if (!Directory.Exists(folderPath))
-				Directory.CreateDirectory(folderPath);
+				Directory.CreateDirectory(folderPath); 
 
 			var fileName = $"{Guid.NewGuid()}{extention}";
 			var filePath = Path.Combine(folderPath, fileName);

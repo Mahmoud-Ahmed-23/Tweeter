@@ -11,7 +11,7 @@ namespace Tweeter.Core.Application.Mapping.NotificationResolvers
         {
             if (!string.IsNullOrEmpty(source.TriggerUser!.ProfilePictureUrl))
             {
-                return $"{configuration["Urls:ApiBaseUrl"]}/{source.TriggerUser.ProfilePictureUrl}";
+                return $"{configuration["Urls:TwitterUrl"]}/{source.TriggerUser.ProfilePictureUrl}";
             }
             return string.Empty;
         }
