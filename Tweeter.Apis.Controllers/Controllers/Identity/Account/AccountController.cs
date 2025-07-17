@@ -29,6 +29,14 @@ namespace Tweeter.Apis.Controllers.Controllers.Identity.Account
 			var result = await mediator.Send(new ForgetPasswordCommand() { ForgetPasswordByEmailDto = emailDto });
 			return NewResult(result);
 		}
+
+		[HttpPost(Router.AccountRouting.ConfirmUserEmail)]
+		public async Task<ActionResult<SuccessDto>> ConfirmEmail(ConfirmUserEmailDto confirmUserEmailDto)
+		{
+			var result = await mediator.Send(new ConfirmUserEmailCommand(confirmUserEmailDto.Email, confirmUserEmailDto.Code));
+			return NewResult(result);
+		}
+
 		[HttpPost(Router.AccountRouting.VerifyCode)]
 		public async Task<ActionResult<SuccessDto>> VerifyCode([FromBody] ResetCodeConfirmationByEmailDto resetCodeDto)
 		{

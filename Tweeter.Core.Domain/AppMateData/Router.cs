@@ -11,6 +11,7 @@
 
 			public const string Register = prefix + "/Register";
 			public const string SendCode = prefix + "/SendCode";
+			public const string ConfirmUserEmail = prefix + "/ConfirmUserEmail";
 			public const string VerifyCode = prefix + "/VerifyCode";
 			public const string EditUser = prefix + "/EditUser";
 

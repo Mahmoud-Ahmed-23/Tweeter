@@ -11,19 +11,20 @@ namespace Tweeter.Core.Application.Features.Identity.Account.Command.Handlers
 		IRequestHandler<RegisterCommand, Response<ReturnUserDto>>,
 		IRequestHandler<ForgetPasswordCommand, Response<SuccessDto>>,
 		IRequestHandler<VerifiyCodeByEmailCommand, Response<SuccessDto>>,
-		IRequestHandler<EditUserCommand, Response<ReturnUserDto>>
+		IRequestHandler<EditUserCommand, Response<ReturnUserDto>>,
+		IRequestHandler<ConfirmUserEmailCommand, Response<string>>
 
 	{
 		private readonly IAccountService _accountService;
 
-        public AccountCommandHandler(IAccountService accountService)
-        {
-            _accountService = accountService;
-        }
+		public AccountCommandHandler(IAccountService accountService)
+		{
+			_accountService = accountService;
+		}
 
-        public async Task<Response<ReturnUserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
-        {
-            var result = await _accountService.Register(request.RegisterDto);
+		public async Task<Response<ReturnUserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+		{
+			var result = await _accountService.Register(request.RegisterDto);
 
 			return await HandleResultAsync(Task.FromResult(result));
 		}
@@ -43,6 +44,13 @@ namespace Tweeter.Core.Application.Features.Identity.Account.Command.Handlers
 		public async Task<Response<ReturnUserDto>> Handle(EditUserCommand request, CancellationToken cancellationToken)
 		{
 			var result = await _accountService.EditUser(request.EditUserDto);
+			return await HandleResultAsync(Task.FromResult(result));
+		}
+
+		public async Task<Response<string>> Handle(ConfirmUserEmailCommand request, CancellationToken cancellationToken)
+		{
+			var result = await _accountService.ConfirmUserEmail(request.Email, request.Code);
+
 			return await HandleResultAsync(Task.FromResult(result));
 		}
 	}

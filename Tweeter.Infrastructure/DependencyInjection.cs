@@ -23,7 +23,7 @@ namespace Tweeter.Infrastructure
 
 				return connectionMultiplexer;
 			});
-
+			
 			return services;
 		}
 	}
